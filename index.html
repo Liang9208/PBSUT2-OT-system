@@ -3,229 +3,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PBSU T2 PrePlanned OT - Smart Paste AI</title>
+<title>PBSU T2 PrePlanned OT - Pro Date Filter</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#1f2937}.app{display:grid;grid-template-columns:52% 48%;height:100vh}.left{padding:18px;overflow:auto;background:#fff;border-right:1px solid #d7dde5}.right{background:#eef2f7;display:flex;flex-direction:column}.viewerHead{padding:10px 12px;background:#172033;color:#fff;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}.viewerHead button,.btn{border:0;border-radius:8px;padding:9px 13px;font-weight:700;cursor:pointer}.viewerHead button{background:#fff;color:#172033}.spframe{width:100%;height:100%;border:0;background:#fff}h1{font-size:21px;margin:0 0 4px}.sub{font-size:13px;color:#64748b;margin:0 0 14px}.card{background:#fff;border:1px solid #dfe5ec;border-radius:12px;padding:14px;margin-bottom:12px}.hint{background:#eef6ff;border-color:#b9d7ff;color:#164b83}.warn{background:#fff8e6;border-color:#f0d28a;color:#6f4b00}.ok{background:#ecfdf3;border-color:#b7e4c7;color:#17613a}.danger{background:#fff1f1;border-color:#f5bcbc;color:#942020}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{background:#111827;color:white}.btn.secondary{background:#e5e7eb;color:#111827}.btn.green{background:#147a48}.btn:disabled{background:#9ca3af;cursor:not-allowed}textarea{width:100%;min-height:230px;border:1px solid #cfd8e3;border-radius:10px;padding:10px;font-family:Consolas,Monaco,monospace;font-size:12px;resize:vertical}input,select{border:1px solid #cfd8e3;border-radius:8px;padding:8px 10px;font-size:13px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px;text-align:center}.stat b{display:block;font-size:22px}.stat span{font-size:11px;color:#64748b}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tableWrap{overflow:auto;border:1px solid #dfe5ec;border-radius:10px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:920px}th,td{padding:7px 8px;border-bottom:1px solid #edf1f5;text-align:left;vertical-align:top}th{background:#f1f5f9;font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:.03em}tr:hover td{background:#fbfdff}.tag{display:inline-block;border-radius:999px;padding:2px 7px;font-weight:700;font-size:11px}.tag.blue{background:#e8f1ff;color:#1a4a8a;border:1px solid #b8d0f5}.tag.green{background:#eaf7ef;color:#17613a;border:1px solid #b7e4c7}.tag.warn{background:#fff8e6;color:#8a5a00;border:1px solid #f0d28a}.tag.err{background:#fff1f1;color:#942020;border:1px solid #f5bcbc}.small{font-size:12px;color:#64748b}.manual{width:18px;height:18px}.badrow{opacity:.55}.search{width:100%;margin-bottom:8px}.splitNote{font-size:12px;line-height:1.5}.footerNote{font-size:12px;color:#64748b;margin-top:8px}@media(max-width:900px){.app{grid-template-columns:1fr;height:auto}.right{height:70vh}.grid{grid-template-columns:repeat(2,1fr)}}
-</style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f6fa;color:#111827;font-size:14px} .wrap{display:grid;grid-template-columns:52% 48%;height:100vh}.left{padding:16px;overflow:auto;background:#fff;border-right:1px solid #ddd}.right{height:100%;background:#f8fafc}.spframe{width:100%;height:100%;border:0}h1{font-size:24px;margin:0 0 4px}.sub{color:#64748b;margin:0 0 14px;line-height:1.45}.card{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:8px;padding:9px 12px;background:#0f62fe;color:#fff;font-weight:700;cursor:pointer}.btn.sec{background:#475569}.btn.warn{background:#b45309}.btn:disabled{background:#94a3b8;cursor:not-allowed}textarea{width:100%;min-height:135px;border:1px solid #cbd5e1;border-radius:10px;padding:10px;font-family:Consolas,monospace;font-size:12px;resize:vertical}input,select{border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#fff}.hint{font-size:12px;color:#64748b;line-height:1.45}.status{padding:9px 11px;border-radius:9px;background:#f1f5f9;color:#334155;margin-top:8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}.stat b{font-size:22px;display:block}.dategrid{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto;padding:8px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}.datechip{border:1px solid #cbd5e1;border-radius:20px;padding:6px 9px;background:#fff;cursor:pointer;font-size:12px}.datechip.sel{background:#0f62fe;color:#fff;border-color:#0f62fe}.datechip.has{border-color:#16a34a}.datechip.ot2{box-shadow:inset 0 -3px 0 #a855f7}.tools{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:10px 0}.search{width:260px}.tblwrap{overflow:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:48vh}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f1f5f9;z-index:1;text-transform:uppercase;font-size:11px;color:#475569}tr:hover td{background:#f8fafc}.badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:700}.b2{background:#dbeafe;color:#1d4ed8}.bot2{background:#ede9fe;color:#6d28d9}.issue{background:#fef3c7;color:#92400e}.ok{background:#dcfce7;color:#166534}.off{opacity:.35}.mini{font-size:11px;color:#64748b}.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.chkline{display:flex;align-items:center;gap:6px}.hidden{display:none}@media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}.right{height:65vh}.stats,.cols{grid-template-columns:1fr 1fr}.search{width:100%}}</style>
 </head>
 <body>
-<div class="app">
-  <section class="left">
-    <h1>PrePlanned OT - Smart Paste AI</h1>
-    <p class="sub">Copy rows from the SharePoint roster viewer, paste here, auto-detect ID / Name / Team / roster columns, then export clean list.</p>
-
-    <div class="card hint splitNote">
-      <b>How to use:</b> On the right SharePoint viewer, select the roster table rows → copy → paste below → click <b>Smart Analyse Paste</b>. This does not bypass SharePoint security; it analyses only what you copied.
-    </div>
-
-    <div class="card">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <b>Paste SharePoint copied rows</b>
-        <div class="row">
-          <button class="btn secondary" onclick="clearPaste()">Clear</button>
-          <button class="btn" onclick="smartAnalyse()">Smart Analyse Paste</button>
-        </div>
-      </div>
-      <textarea id="pasteBox" placeholder="Paste copied SharePoint rows here. Works with tab-separated cells, comma rows, or spacing copied from Excel web."></textarea>
-      <div id="status" class="footerNote">Waiting for pasted rows.</div>
-    </div>
-
-    <div class="grid" id="stats" style="display:none">
-      <div class="stat"><b id="stRows">0</b><span>Rows read</span></div>
-      <div class="stat"><b id="stFound">0</b><span>OT found</span></div>
-      <div class="stat"><b id="stDup">0</b><span>Duplicate IDs</span></div>
-      <div class="stat"><b id="stIssue">0</b><span>Review issues</span></div>
-    </div>
-
-    <div class="card" id="reviewCard" style="display:none">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <div>
-          <b>Review result</b>
-          <div class="small" id="detectedInfo"></div>
-        </div>
-        <div class="row">
-          <button class="btn secondary" onclick="selectAll(true)">Select all</button>
-          <button class="btn secondary" onclick="selectAll(false)">Unselect all</button>
-          <button class="btn green" id="exportBtn" onclick="exportExcel()">Export PrePlanned OT Result</button>
-        </div>
-      </div>
-      <input class="search" id="searchBox" placeholder="Search ID, name, team, type..." oninput="renderResults()">
-      <div class="tableWrap">
-        <table>
-          <thead><tr><th>Use</th><th>Type</th><th>ID</th><th>Name</th><th>Team</th><th>Roster column/date</th><th>Value</th><th>Confidence</th><th>Review note</th></tr></thead>
-          <tbody id="resultBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card warn">
-      <b>Important:</b> Paste method cannot read colour from SharePoint. It detects exact values <b>2</b> and <b>OT2</b> in roster columns. Untick any row you do not want before export.
-    </div>
-  </section>
-
-  <section class="right">
-    <div class="viewerHead">
-      <span>SharePoint roster viewer</span>
-      <button onclick="openSharePointFull()">Open full SharePoint</button>
-    </div>
-    <iframe class="spframe" src="https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc={f3b64f6d-79a4-4a09-9d15-6ac808a7874a}&action=embedview&wdAllowInteractivity=True&wdDownloadButton=True&wdInConfigurator=True&edaebf=rslc0"></iframe>
-  </section>
+<div class="wrap">
+<section class="left">
+<h1>PrePlanned OT - Pro Date Filter</h1>
+<p class="sub">Paste copied SharePoint roster rows, select date first, then analyse only that date. Export clean ID / Name / Team list.</p>
+<div class="card">
+  <div class="row" style="justify-content:space-between">
+    <b>Step 1 - Paste roster rows</b>
+    <div class="row"><button class="btn sec" onclick="clearAll()">Clear</button><button class="btn" onclick="openSP()">Open full SharePoint</button></div>
+  </div>
+  <p class="hint">Select SharePoint table rows including the header/date row, copy, then paste below. This version does not scan all dates blindly.</p>
+  <textarea id="pasteBox" placeholder="Paste SharePoint copied rows here..."></textarea>
+  <div class="row" style="margin-top:8px"><button class="btn" onclick="prepareDates()">1. Detect Dates</button><button class="btn warn" id="analyseBtn" onclick="analyseSelectedDates()" disabled>2. Smart Analyse Selected Date</button></div>
+  <div id="status" class="status">Waiting for pasted rows.</div>
 </div>
-
+<div class="card" id="dateCard" style="display:none">
+  <b>Step 2 - Select date</b>
+  <p class="hint">Green border = date column has 2/OT2. Purple underline = has OT2. You can select one or multiple dates.</p>
+  <div class="row" style="margin-bottom:8px">
+    <label class="chkline"><input type="checkbox" id="multiMode" onchange="renderDateChips()"> Multi-date</label>
+    <button class="btn sec" onclick="selectAllDatesWithOT()">Select all dates with OT</button>
+    <button class="btn sec" onclick="clearDateSelection()">Clear date</button>
+  </div>
+  <div id="dateGrid" class="dategrid"></div>
+</div>
+<div class="card" id="mapCard" style="display:none">
+  <b>Column detection</b>
+  <p class="hint">If auto-detect is wrong, change columns before analysis.</p>
+  <div class="cols">
+    <label>ID<br><select id="idCol"></select></label>
+    <label>Name<br><select id="nameCol"></select></label>
+    <label>Team<br><select id="teamCol"></select></label>
+    <label>Appointment<br><select id="apptCol"></select></label>
+  </div>
+</div>
+<div class="card" id="resultCard" style="display:none">
+  <div class="stats">
+    <div class="stat"><b id="stRows">0</b><span>Rows read</span></div>
+    <div class="stat"><b id="stFound">0</b><span>Selected OT</span></div>
+    <div class="stat"><b id="stUnique">0</b><span>Export unique</span></div>
+    <div class="stat"><b id="stIssue">0</b><span>Issues</span></div>
+  </div>
+  <div class="tools">
+    <input id="search" class="search" placeholder="Search ID, name, team..." oninput="renderResults()">
+    <div class="row"><button class="btn sec" onclick="setAll(true)">Select all</button><button class="btn sec" onclick="setAll(false)">Unselect all</button><button class="btn" onclick="exportExcel()">Export PrePlanned OT Result</button></div>
+  </div>
+  <div class="tblwrap"><table><thead><tr><th>Use</th><th>Date</th><th>Type</th><th>ID</th><th>Name</th><th>Team</th><th>Appointment</th><th>Cell</th><th>Review</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</div>
+</section>
+<section class="right">
+<iframe class="spframe" src="https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc={f3b64f6d-79a4-4a09-9d15-6ac808a7874a}&action=embedview&wdAllowInteractivity=False&wdDownloadButton=True&wdInConfigurator=True&edaebf=rslc0"></iframe>
+</section>
+</div>
 <script>
-let results = [];
-let parseMeta = {};
-
-function norm(v){return String(v ?? '').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();}
-function upper(v){return norm(v).toUpperCase();}
-function cleanName(v){return norm(v).replace(/\s*\((?:X|NX)\)\s*/gi,' ').replace(/\s+/g,' ').trim();}
-function esc(s){return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function colName(n){let s='';n++;while(n>0){let m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-m)/26);}return s;}
-function openSharePointFull(){window.open('https://certiscisco-my.sharepoint.com/:x:/r/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc=%7BF3B64F6D-79A4-4A09-9D15-6AC808A7874A%7D&file=Book.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1','_blank','noopener');}
-function clearPaste(){document.getElementById('pasteBox').value=''; results=[]; document.getElementById('reviewCard').style.display='none'; document.getElementById('stats').style.display='none'; document.getElementById('status').textContent='Cleared.';}
-
-function splitRows(text){
-  return String(text||'').split(/\r?\n/).map(line=>line.trimEnd()).filter(Boolean).map(line=>{
-    if(line.includes('\t')) return line.split('\t').map(norm);
-    if(line.includes(',')) return line.split(',').map(norm);
-    return line.split(/\s{2,}/).map(norm).filter(Boolean);
-  }).filter(r=>r.some(Boolean));
-}
-
-function scoreHeaderRow(row){
-  const vals=row.map(upper); let score=0;
-  if(vals.some(v=>v==='ID'||v==='STAFF ID'||v.includes('PERSONNEL')||v.includes('SERVICE ID'))) score+=4;
-  if(vals.some(v=>v==='NAME'||v.includes('OFFICER')||v.includes('EMPLOYEE'))) score+=4;
-  if(vals.some(v=>v==='TEAM'||v==='GRP'||v==='GROUP')) score+=3;
-  const dateLike=vals.filter(v=>/^\d{1,2}[\/\-.]\d{1,2}/.test(v)||/^\d{5}$/.test(v)||/MON|TUE|WED|THU|FRI|SAT|SUN|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC/.test(v)).length;
-  score += Math.min(dateLike,5);
-  return score;
-}
-
-function findHeader(rows){
-  let best={idx:-1,score:-1};
-  for(let i=0;i<Math.min(rows.length,30);i++){
-    const sc=scoreHeaderRow(rows[i]);
-    if(sc>best.score) best={idx:i,score:sc};
+let rows=[], headerIndex=-1, header=[], dateCols=[], selectedDates=new Set(), results=[];
+const $=id=>document.getElementById(id);
+function norm(v){return String(v??'').replace(/\u00a0/g,' ').trim();}
+function up(v){return norm(v).toUpperCase();}
+function cleanName(v){return norm(v).replace(/\s*\((X|NX)\)\s*/gi,' ').replace(/\s+/g,' ').trim();}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function colName(i){let n=i+1,s='';while(n>0){let m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-m)/26)}return s;}
+function openSP(){window.open('https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc=%7BF3B64F6D-79A4-4A09-9D15-6AC808A7874A%7D&file=Book.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1','_blank','noopener');}
+function splitRows(text){return String(text||'').split(/\r?\n/).map(l=>l.trimEnd()).filter(Boolean).map(l=> l.includes('\t') ? l.split('\t').map(norm) : l.split(/\s{2,}/).map(norm));}
+function isId(v){return /^\d{5,6}$/.test(norm(v));}
+function looksTeam(v){return /^(B|A|C|D)\d+$/i.test(norm(v));}
+function isRosterVal(v){let x=up(v);return x==='2'||x==='OT2';}
+function parseDateToken(v){let s=norm(v); if(!s) return null; let m=s.match(/^(\d{1,2})[-\/\s]?([A-Za-z]{3,}|\d{1,2})(?:[-\/\s]?(\d{2,4}))?$/); if(m){let d=m[1].padStart(2,'0'), mon=m[2], y=m[3]||''; return y?`${d}-${mon}-${y}`:`${d}-${mon}`;} if(/^(MON|TUE|WED|THU|FRI|SAT|SUN)$/i.test(s)) return null; if(/^\d{5}$/.test(s)){return null;} return null;}
+function findHeader(){
+  for(let r=0;r<Math.min(rows.length,30);r++){
+    let vals=rows[r].map(up);
+    let hasId=vals.some(v=>v==='ID'||v.includes('PERSONNEL')||v.includes('STAFF'));
+    let hasName=vals.some(v=>v==='NAME'||v.includes('OFFICER'));
+    let hasTeam=vals.some(v=>v==='TEAM');
+    if(hasId&&hasName&&hasTeam) return r;
   }
-  return best.score>=6?best.idx:0;
+  // fallback: first row with many real IDs below
+  return 0;
 }
-
-function findCols(header, rows, hidx){
-  const maxCols=Math.max(...rows.map(r=>r.length));
-  const hdr=Array.from({length:maxCols},(_,i)=>upper(header[i]||''));
-  let idCol=hdr.findIndex(v=>v==='ID'||v==='STAFF ID'||v.includes('PERSONNEL')||v.includes('SERVICE ID'));
-  let nameCol=hdr.findIndex(v=>v==='NAME'||v==='OFFICER'||v.includes('OFFICER NAME')||v.includes('EMPLOYEE'));
-  let teamCol=hdr.findIndex(v=>v==='TEAM'||v==='GRP'||v==='GROUP');
-
-  // Data-shape fallback
-  for(let c=0;c<maxCols;c++){
-    const sample=rows.slice(hidx+1,hidx+12).map(r=>norm(r[c])).filter(Boolean);
-    if(idCol<0 && sample.length && sample.filter(v=>/^\d{4,}$/.test(v)).length>=Math.max(2,Math.floor(sample.length*.5))) idCol=c;
-    if(teamCol<0 && sample.filter(v=>/^[A-Z]{1,3}\d{0,2}$/i.test(v)).length>=2) teamCol=c;
-  }
-  if(nameCol<0){
-    for(let c=0;c<maxCols;c++){
-      if(c===idCol||c===teamCol) continue;
-      const sample=rows.slice(hidx+1,hidx+12).map(r=>norm(r[c])).filter(Boolean);
-      if(sample.filter(v=>/[A-Za-z]/.test(v)&&v.length>3&&!/^\d+$/.test(v)).length>=2){ nameCol=c; break; }
+function autoColumnIndices(){
+  let h=header.map(up);
+  let id=h.findIndex(v=>v==='ID'||v.includes('PERSONNEL')||v.includes('STAFF'));
+  let name=h.findIndex(v=>v==='NAME'||v.includes('OFFICER'));
+  let team=h.findIndex(v=>v==='TEAM');
+  let appt=h.findIndex(v=>v.includes('APPOINT')||v.includes('DEPLOY')||v.includes('DUTY'));
+  if(id<0||name<0||team<0){
+    // infer from data row pattern: ID, name, team, appointment, dates
+    for(let r=headerIndex+1;r<Math.min(rows.length,headerIndex+20);r++){
+      let row=rows[r];
+      for(let c=0;c<row.length;c++) if(isId(row[c])){id=c; name=c+1; team=c+2; appt=c+3; break;}
+      if(id>=0) break;
     }
   }
-  return {idCol,nameCol,teamCol,maxCols};
+  return {id,name,team,appt};
 }
-
-function isRosterHeader(v){
-  const s=upper(v);
-  return /^\d{1,2}[\/\-.]\d{1,2}/.test(s)||/^\d{5}$/.test(s)||/MON|TUE|WED|THU|FRI|SAT|SUN|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|ROSTER|DATE/.test(s);
-}
-
-function smartAnalyse(){
-  const rows=splitRows(document.getElementById('pasteBox').value);
-  results=[];
-  if(!rows.length){document.getElementById('status').textContent='Paste box is empty.';return;}
-  const hidx=findHeader(rows);
-  const header=rows[hidx]||[];
-  const cols=findCols(header, rows, hidx);
-  if(cols.idCol<0 || cols.nameCol<0 || cols.teamCol<0){
-    document.getElementById('status').textContent='Cannot detect ID / Name / Team columns. Try copy the header row together with data.';return;
+function populateSelect(id, selected){
+  let sel=$(id); sel.innerHTML='';
+  let max=Math.max(...rows.map(r=>r.length), header.length);
+  for(let i=0;i<max;i++){
+    let label=(header[i]||'') ? `${colName(i)} - ${header[i]}` : colName(i);
+    sel.innerHTML+=`<option value="${i}" ${i===selected?'selected':''}>${escapeHtml(label)}</option>`;
   }
-  const rosterStart=Math.max(cols.idCol,cols.nameCol,cols.teamCol)+1;
-  let rowRead=0;
-  for(let r=hidx+1;r<rows.length;r++){
-    const row=rows[r];
-    const id=norm(row[cols.idCol]);
-    const name=cleanName(row[cols.nameCol]);
-    const team=norm(row[cols.teamCol]);
-    if(!id&&!name&&!team) continue;
-    if(id && !/^\d{3,}$/.test(id)) continue;
-    rowRead++;
-    for(let c=rosterStart;c<Math.max(row.length, header.length);c++){
-      const val=upper(row[c]);
-      if(val !== '2' && val !== 'OT2') continue;
-      const head=norm(header[c] || ('Column '+colName(c)));
-      const type= val==='OT2' ? 'OT2' : '2';
-      const confidence = isRosterHeader(head) ? 'High' : 'Medium';
-      const note=[];
-      if(!id) note.push('Missing ID');
-      if(!name) note.push('Missing name');
-      if(!team) note.push('Missing team');
-      if(confidence==='Medium') note.push('Roster/date header not clear');
-      results.push({include:true,type,id,name,team,header:head,cell:colName(c)+(r+1),value:row[c],confidence,note:note.join('; ') || 'OK'});
-    }
+}
+function prepareDates(){
+  rows=splitRows($('pasteBox').value); results=[]; selectedDates.clear();
+  if(!rows.length){$('status').textContent='Paste box is empty.';return;}
+  headerIndex=findHeader(); header=rows[headerIndex]||[];
+  const cols=autoColumnIndices();
+  populateSelect('idCol', cols.id); populateSelect('nameCol', cols.name); populateSelect('teamCol', cols.team); populateSelect('apptCol', cols.appt);
+  // Date row can be header row, row above, or row below weekday row. Score each column after team/appt.
+  let rosterStart=Math.max(cols.id,cols.name,cols.team,cols.appt)+1;
+  let maxCols=Math.max(...rows.map(r=>r.length)); dateCols=[];
+  for(let c=rosterStart;c<maxCols;c++){
+    let candidates=[header[c], rows[headerIndex-1]?.[c], rows[headerIndex-2]?.[c], rows[headerIndex+1]?.[c]].filter(Boolean);
+    let label=candidates.map(parseDateToken).find(Boolean) || norm(header[c]) || norm(rows[headerIndex-1]?.[c]) || colName(c);
+    let count2=0,countOT2=0,total=0;
+    for(let r=headerIndex+1;r<rows.length;r++){let v=up(rows[r][c]); if(v){total++; if(v==='2')count2++; if(v==='OT2')countOT2++;}}
+    // include likely date columns: either date label or has roster values
+    if(parseDateToken(label)||count2||countOT2) dateCols.push({col:c,label,count2,countOT2,total});
   }
-  const idCounts={}; results.forEach(x=>{if(x.id) idCounts[x.id]=(idCounts[x.id]||0)+1;});
-  results.forEach(x=>{ if(x.id && idCounts[x.id]>1) x.note = (x.note==='OK'?'':x.note+'; ')+'Duplicate ID'; });
-  parseMeta={rows:rowRead,hidx,cols,rosterStart};
-  document.getElementById('status').textContent = results.length ? 'Smart analysis complete. Review and export.' : 'No exact 2 or OT2 found in roster columns.';
-  renderStats(); renderResults();
+  $('dateCard').style.display='block'; $('mapCard').style.display='block'; $('resultCard').style.display='none';
+  $('analyseBtn').disabled=true; renderDateChips();
+  $('status').textContent=`Dates detected: ${dateCols.length}. Select date before analysis. Header row ${headerIndex+1}.`;
 }
-
-function renderStats(){
-  const dupIds=new Set(); const count={}; results.forEach(r=>{if(r.id) count[r.id]=(count[r.id]||0)+1;}); Object.entries(count).forEach(([id,n])=>{if(n>1)dupIds.add(id);});
-  const issues=results.filter(r=>r.note && r.note!=='OK').length;
-  document.getElementById('stats').style.display='grid';
-  document.getElementById('stRows').textContent=parseMeta.rows||0;
-  document.getElementById('stFound').textContent=results.length;
-  document.getElementById('stDup').textContent=dupIds.size;
-  document.getElementById('stIssue').textContent=issues;
-  document.getElementById('detectedInfo').textContent=`Header row ${parseMeta.hidx+1}; ID=${colName(parseMeta.cols.idCol)}, Name=${colName(parseMeta.cols.nameCol)}, Team=${colName(parseMeta.cols.teamCol)}, roster starts ${colName(parseMeta.rosterStart)}`;
+function renderDateChips(){
+  const grid=$('dateGrid'); grid.innerHTML='';
+  dateCols.forEach(d=>{
+    let b=document.createElement('button'); b.type='button'; b.className='datechip '+(selectedDates.has(d.col)?'sel ':'')+(d.count2||d.countOT2?'has ':'')+(d.countOT2?'ot2':'');
+    b.innerHTML=`${escapeHtml(d.label)} <span class="mini">(${d.count2+d.countOT2})</span>`;
+    b.onclick=()=>{ if(!$('multiMode').checked) selectedDates.clear(); selectedDates.has(d.col)?selectedDates.delete(d.col):selectedDates.add(d.col); $('analyseBtn').disabled=selectedDates.size===0; renderDateChips(); };
+    grid.appendChild(b);
+  });
 }
-
+function selectAllDatesWithOT(){selectedDates.clear(); dateCols.filter(d=>d.count2||d.countOT2).forEach(d=>selectedDates.add(d.col)); $('multiMode').checked=true; $('analyseBtn').disabled=selectedDates.size===0; renderDateChips();}
+function clearDateSelection(){selectedDates.clear(); $('analyseBtn').disabled=true; renderDateChips();}
+function analyseSelectedDates(){
+  let idCol=+$('idCol').value, nameCol=+$('nameCol').value, teamCol=+$('teamCol').value, apptCol=+$('apptCol').value;
+  results=[]; let issue=0; let seen=new Set();
+  for(let r=headerIndex+1;r<rows.length;r++){
+    let row=rows[r]; let id=norm(row[idCol]), name=cleanName(row[nameCol]), team=norm(row[teamCol]), appt=norm(row[apptCol]);
+    if(!id&&!name&&!team) continue; if(id && !isId(id)) continue;
+    selectedDates.forEach(c=>{
+      let val=up(row[c]); if(val!=='2'&&val!=='OT2') return;
+      let date=dateCols.find(d=>d.col===c)?.label || colName(c);
+      let key=`${id||name}|${team}|${date}|${val}`;
+      let review='OK'; if(!id||!name||!team){review='Missing ID/name/team'; issue++;}
+      if(seen.has(key)){review='Duplicate same date/type'; issue++;}
+      seen.add(key);
+      results.push({include:true,date,type:val,id,name,team,appt,cell:colName(c)+(r+1),review});
+    });
+  }
+  $('resultCard').style.display='block'; renderResults();
+  $('status').textContent=`Analysis complete for ${selectedDates.size} selected date(s).`;
+}
+function setAll(v){results.forEach(r=>r.include=v); renderResults();}
 function renderResults(){
-  document.getElementById('reviewCard').style.display='block';
-  const q=upper(document.getElementById('searchBox')?.value||'');
-  const body=document.getElementById('resultBody'); body.innerHTML='';
+  let q=up($('search').value); let tbody=$('tbody'); tbody.innerHTML=''; let issues=0; let exportKeys=new Set();
+  results.forEach((r,i)=>{ if(r.review!=='OK')issues++; if(r.include) exportKeys.add(r.id?`ID:${r.id}`:`${r.name}|${r.team}`); });
+  $('stRows').textContent=rows.length; $('stFound').textContent=results.length; $('stUnique').textContent=exportKeys.size; $('stIssue').textContent=issues;
   results.forEach((r,i)=>{
-    const text=upper([r.type,r.id,r.name,r.team,r.header,r.note].join(' ')); if(q && !text.includes(q)) return;
-    const tr=document.createElement('tr'); if(!r.include) tr.className='badrow';
-    const typeClass=r.type==='OT2'?'green':'blue';
-    const confClass=r.confidence==='High'?'green':'warn';
-    const noteClass=r.note==='OK'?'green':(r.note.includes('Missing')?'err':'warn');
-    tr.innerHTML=`<td><input class="manual" type="checkbox" ${r.include?'checked':''} onchange="results[${i}].include=this.checked;renderResults()"></td>
-      <td><span class="tag ${typeClass}">${esc(r.type)}</span></td><td>${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${esc(r.header)}</td><td>${esc(r.value)}</td>
-      <td><span class="tag ${confClass}">${esc(r.confidence)}</span></td><td><span class="tag ${noteClass}">${esc(r.note)}</span></td>`;
-    body.appendChild(tr);
+    let line=up(`${r.type} ${r.id} ${r.name} ${r.team} ${r.date}`); if(q && !line.includes(q)) return;
+    let tr=document.createElement('tr'); if(!r.include) tr.className='off';
+    tr.innerHTML=`<td><input type="checkbox" ${r.include?'checked':''} onchange="results[${i}].include=this.checked;renderResults()"></td><td>${escapeHtml(r.date)}</td><td><span class="badge ${r.type==='OT2'?'bot2':'b2'}">${r.type}</span></td><td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.team)}</td><td>${escapeHtml(r.appt)}</td><td>${escapeHtml(r.cell)}</td><td><span class="badge ${r.review==='OK'?'ok':'issue'}">${escapeHtml(r.review)}</span></td>`;
+    tbody.appendChild(tr);
   });
 }
-function selectAll(v){results.forEach(r=>r.include=v);renderResults();}
-
 function exportExcel(){
-  const selected=results.filter(r=>r.include!==false);
-  if(!selected.length){alert('No rows selected.');return;}
-  const seen=new Set();
-  const out=[['ID','Name','Team']];
-  selected.forEach(r=>{
-    const key=r.id ? 'ID:'+r.id : `${r.name}|${r.team}`;
-    if(seen.has(key)) return; seen.add(key);
-    out.push([r.id,r.name,r.team]);
-  });
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet(out);
-  ws['!cols']=[{wch:14},{wch:34},{wch:14}];
-  XLSX.utils.book_append_sheet(wb,ws,'PrePlanned OT List');
-  XLSX.writeFile(wb,'PrePlanned OT Result.xlsx');
+  let chosen=results.filter(r=>r.include); if(!chosen.length){alert('No selected rows.');return;}
+  let seen=new Set(), out=[['ID','Name','Team']];
+  chosen.forEach(r=>{let key=r.id?`ID:${r.id}`:`${r.name}|${r.team}`; if(seen.has(key))return; seen.add(key); out.push([r.id,r.name,r.team]);});
+  let ws=XLSX.utils.aoa_to_sheet(out); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'PrePlanned OT List'); XLSX.writeFile(wb, 'PrePlanned OT Result.xlsx');
 }
+function clearAll(){ $('pasteBox').value=''; rows=[]; results=[]; dateCols=[]; selectedDates.clear(); ['dateCard','mapCard','resultCard'].forEach(id=>$(id).style.display='none'); $('status').textContent='Waiting for pasted rows.'; }
 </script>
 </body>
 </html>
