@@ -267,7 +267,7 @@ table.ot tbody tr.skiprow{opacity:.28}
     <div class="card">
       <div class="ctitle">PrePlanned OT</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Analyse the <b>PrePlanned OT</b> tab for rostered <b>2</b> in blue and <b>OT2</b> in green. Review first, then export a workbook with <b>PrePlanned OT List</b> only.</p>
-      <iframe class="ppframe" sandbox="allow-scripts allow-downloads allow-same-origin" srcdoc="&lt;!doctype html&gt;
+      <iframe class="ppframe" sandbox="allow-scripts allow-downloads" srcdoc="&lt;!doctype html&gt;
 &lt;html lang=&quot;en&quot;&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
@@ -275,50 +275,31 @@ table.ot tbody tr.skiprow{opacity:.28}
 &lt;title&gt;PrePlanned OT List Builder&lt;/title&gt;
 &lt;style&gt;
 body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f6f8fb;color:#18202a}
-main{max-width:1500px;margin:22px auto;padding:0 18px}
+main{max-width:1180px;margin:32px auto;padding:0 18px}
 h1{font-size:28px;margin:0 0 8px} .sub{color:#596575;margin-bottom:22px}
 .panel,.card{background:#fff;border:1px solid #dde3ea;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:16px}
-input[type=file],input[type=text]{padding:12px;border:1px dashed #9aa8b7;border-radius:10px;background:#fbfdff;width:100%;box-sizing:border-box}
+input[type=file]{padding:12px;border:1px dashed #9aa8b7;border-radius:10px;background:#fbfdff;width:100%;box-sizing:border-box}
 button{border:0;border-radius:10px;padding:11px 16px;font-weight:700;background:#1f6feb;color:white;cursor:pointer}button:disabled{background:#9aa8b7;cursor:not-allowed}
 #status{margin-top:12px;color:#39495d} .pill{display:inline-block;background:#e8f1ff;color:#174ea6;border-radius:999px;padding:4px 10px;font-weight:700}
 table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #dde3ea;border-radius:12px;overflow:hidden} th,td{border-bottom:1px solid #e6ebf1;padding:9px 10px;text-align:left;font-size:13px;vertical-align:top} th{background:#eef4fb;font-size:12px;text-transform:uppercase;letter-spacing:.03em} tr:hover td{background:#fbfdff} .swatch{display:inline-block;width:16px;height:16px;border:1px solid #9aa8b7;border-radius:4px;vertical-align:middle;margin-right:7px} .note{font-size:13px;color:#536171;line-height:1.45} .actions{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:14px 0} .warn{background:#fff8e6;border-color:#f0d68a}
-.split{display:grid;grid-template-columns:minmax(480px,55%) minmax(360px,45%);gap:14px;align-items:start}.viewer{position:sticky;top:12px}.viewer iframe{width:100%;height:76vh;border:1px solid #cfd8e3;border-radius:14px;background:#fff}.mini{font-size:12px;color:#536171;line-height:1.45;margin-top:8px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}.ghost{background:#e9eef5;color:#233041}.ok{background:#e8f7ee;border-color:#bce2ca}.danger{background:#fff1f0;border-color:#f1b8b8}@media(max-width:900px){.split{grid-template-columns:1fr}.viewer{position:static}.viewer iframe{height:55vh}}
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;&lt;main&gt;
 &lt;h1&gt;PrePlanned OT List Builder&lt;/h1&gt;
-&lt;div class=&quot;sub&quot;&gt;Split-view for SharePoint roster reference + local Excel analysis. Use the SharePoint panel to open the roster, then download/upload the workbook here. Direct SharePoint reading may be blocked by Microsoft browser security, so upload remains the reliable method.&lt;/div&gt;
-&lt;div class=&quot;split&quot;&gt;
-&lt;section&gt;
-&lt;div class=&quot;panel&quot;&gt;
-  &lt;b&gt;Roster Excel source&lt;/b&gt;
-  &lt;div class=&quot;mini&quot;&gt;Recommended: download &lt;b&gt;T2 Roster New.xlsx&lt;/b&gt; from SharePoint, then upload it below. The analyser reads the &lt;b&gt;PrePlanned OT&lt;/b&gt; tab and preserves cell colours.&lt;/div&gt;
-  &lt;input id=&quot;file&quot; type=&quot;file&quot; accept=&quot;.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;&gt;
-  &lt;div class=&quot;row&quot;&gt;
-    &lt;button id=&quot;sampleBtn&quot; class=&quot;ghost&quot; type=&quot;button&quot;&gt;Use uploaded/downloaded SharePoint Excel&lt;/button&gt;
-    &lt;button id=&quot;clearBtn&quot; class=&quot;ghost&quot; type=&quot;button&quot;&gt;Clear result&lt;/button&gt;
-  &lt;/div&gt;
-  &lt;div id=&quot;status&quot;&gt;Waiting for roster Excel upload.&lt;/div&gt;
+&lt;div class=&quot;sub&quot;&gt;Upload an Excel file, analyse only the &lt;b&gt;PrePlanned OT&lt;/b&gt; tab, review matches, then export an Excel review sheet.&lt;/div&gt;
+&lt;div class=&quot;card note&quot; style=&quot;border-color:#c7d7ee;background:#f4f8ff&quot;&gt;
+  &lt;b&gt;SharePoint roster method:&lt;/b&gt; SharePoint cannot be embedded inside this tool because Microsoft blocks normal iframes. Open it in a new tab, download &lt;b&gt;T2 Roster New.xlsx&lt;/b&gt;, then upload the downloaded workbook below.
+  &lt;div style=&quot;margin-top:10px&quot;&gt;&lt;button type=&quot;button&quot; onclick=&quot;window.open(&#x27;https://certiscisco.sharepoint.com/:x:/r/sites/CASCSSU/_layouts/15/doc2.aspx?sourcedoc=%7BC52400BC-052C-47FD-94BB-69F9044C4D09%7D&amp;file=T2%20Roster%20New.xlsx&amp;action=default&amp;mobileredirect=true&#x27;,&#x27;_blank&#x27;,&#x27;noopener&#x27;)&quot;&gt;Open SharePoint Roster&lt;/button&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;div class=&quot;card warn note&quot;&gt;&lt;b&gt;Detection rules:&lt;/b&gt; roster value &lt;b&gt;2&lt;/b&gt; with a blue fill, and roster value &lt;b&gt;OT2&lt;/b&gt; with a green fill. Names with &lt;b&gt;(X)&lt;/b&gt; or &lt;b&gt;(NX)&lt;/b&gt; are cleaned automatically. Export creates only &lt;b&gt;PrePlanned OT List&lt;/b&gt; with columns &lt;b&gt;ID, Name, Team&lt;/b&gt;.&lt;/div&gt;
+&lt;div class=&quot;panel&quot;&gt;
+&lt;input id=&quot;file&quot; type=&quot;file&quot; accept=&quot;.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;&gt;
+&lt;div id=&quot;status&quot;&gt;Waiting for file upload. Open SharePoint in a new tab, download the roster, then upload it here.&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card warn note&quot;&gt;&lt;b&gt;Detection rules:&lt;/b&gt; roster value &lt;b&gt;2&lt;/b&gt; with a blue fill, and roster value &lt;b&gt;OT2&lt;/b&gt; with a green fill. The export button stays disabled until matches are displayed for review.&lt;/div&gt;
 &lt;div id=&quot;summary&quot;&gt;&lt;/div&gt;
 &lt;div id=&quot;reviewBox&quot; style=&quot;display:none&quot;&gt;
   &lt;div class=&quot;actions&quot;&gt;&lt;div&gt;&lt;span class=&quot;pill&quot;&gt;&lt;span id=&quot;count&quot;&gt;0&lt;/span&gt; matches found&lt;/span&gt;&lt;/div&gt;&lt;button id=&quot;exportBtn&quot; disabled&gt;Export PrePlanned OT Result&lt;/button&gt;&lt;/div&gt;
   &lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Rule&lt;/th&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Team&lt;/th&gt;&lt;th&gt;Roster Date/Header&lt;/th&gt;&lt;th&gt;Cell&lt;/th&gt;&lt;th&gt;Value&lt;/th&gt;&lt;th&gt;Fill&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody id=&quot;resultBody&quot;&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/section&gt;
-&lt;aside class=&quot;viewer&quot;&gt;
-  &lt;div class=&quot;panel&quot;&gt;
-    &lt;b&gt;SharePoint split-page viewer&lt;/b&gt;
-    &lt;input id=&quot;spUrl&quot; type=&quot;text&quot; value=&quot;https://certiscisco.sharepoint.com/:x:/r/sites/CASCSSU/_layouts/15/doc2.aspx?sourcedoc=%7BC52400BC-052C-47FD-94BB-69F9044C4D09%7D&amp;file=T2%20Roster%20New.xlsx&amp;action=default&amp;mobileredirect=true&quot;&gt;
-    &lt;div class=&quot;row&quot;&gt;
-      &lt;button id=&quot;loadSpBtn&quot; type=&quot;button&quot;&gt;Load on right&lt;/button&gt;
-      &lt;button id=&quot;openSpBtn&quot; class=&quot;ghost&quot; type=&quot;button&quot;&gt;Open SharePoint tab&lt;/button&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;mini&quot;&gt;If SharePoint shows “refused to connect” or a security error, click &lt;b&gt;Open SharePoint tab&lt;/b&gt;, download the workbook, then upload it on the left.&lt;/div&gt;
-  &lt;/div&gt;
-  &lt;iframe id=&quot;spFrame&quot; src=&quot;about:blank&quot;&gt;&lt;/iframe&gt;
-&lt;/aside&gt;
 &lt;/div&gt;
 &lt;/main&gt;
 &lt;script&gt;/*!
@@ -339,7 +320,6 @@ const $ = (id) =&gt; document.getElementById(id);
 let loaded = null;
 let results = [];
 let workbookInfo = null;
-const DEFAULT_SP_URL = &quot;https://certiscisco.sharepoint.com/:x:/r/sites/CASCSSU/_layouts/15/doc2.aspx?sourcedoc=%7BC52400BC-052C-47FD-94BB-69F9044C4D09%7D&amp;file=T2%20Roster%20New.xlsx&amp;action=default&amp;mobileredirect=true&quot;;
 
 const NS = &#x27;http://schemas.openxmlformats.org/spreadsheetml/2006/main&#x27;;
 const RNS = &#x27;http://schemas.openxmlformats.org/officeDocument/2006/relationships&#x27;;
@@ -565,37 +545,13 @@ async function exportXlsx(){
   a.download = &#x27;PrePlanned OT Result.xlsx&#x27;;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=&gt;URL.revokeObjectURL(a.href), 2000);
 }
-function loadSharePointFrame(){
-  const url = norm($(&#x27;spUrl&#x27;)?.value) || DEFAULT_SP_URL;
-  $(&#x27;spFrame&#x27;).src = url;
-}
-function openSharePointTab(){
-  const url = norm($(&#x27;spUrl&#x27;)?.value) || DEFAULT_SP_URL;
-  window.open(url, &#x27;_blank&#x27;, &#x27;noopener&#x27;);
-}
-function clearResult(){
-  loaded = null; results = []; workbookInfo = null;
-  $(&#x27;summary&#x27;).innerHTML = &#x27;&#x27;;
-  $(&#x27;count&#x27;).textContent = &#x27;0&#x27;;
-  $(&#x27;exportBtn&#x27;).disabled = true;
-  $(&#x27;reviewBox&#x27;).style.display = &#x27;none&#x27;;
-  $(&#x27;resultBody&#x27;).innerHTML = &#x27;&#x27;;
-  $(&#x27;status&#x27;).textContent = &#x27;Cleared. Upload roster Excel again.&#x27;;
-  $(&#x27;file&#x27;).value = &#x27;&#x27;;
-}
 $(&#x27;file&#x27;).addEventListener(&#x27;change&#x27;, async (e) =&gt; {
-  const file = e.target.files[0]; if(!file) return;
-  $(&#x27;status&#x27;).textContent = &#x27;Reading workbook and preserving cell colours...&#x27;;
+  $(&#x27;status&#x27;).textContent = &#x27;Reading workbook...&#x27;;
   $(&#x27;reviewBox&#x27;).style.display=&#x27;none&#x27;; $(&#x27;summary&#x27;).innerHTML=&#x27;&#x27;; $(&#x27;exportBtn&#x27;).disabled=true;
-  try { await analyzeFile(file); $(&#x27;status&#x27;).textContent = &#x27;Analysis complete. Review the result before export.&#x27;; }
+  try { await analyzeFile(e.target.files[0]); $(&#x27;status&#x27;).textContent = &#x27;Analysis complete. Please review the matches before exporting.&#x27;; }
   catch(err){ console.error(err); $(&#x27;status&#x27;).textContent = &#x27;Error: &#x27;+err.message; }
 });
 $(&#x27;exportBtn&#x27;).addEventListener(&#x27;click&#x27;, exportXlsx);
-$(&#x27;loadSpBtn&#x27;).addEventListener(&#x27;click&#x27;, loadSharePointFrame);
-$(&#x27;openSpBtn&#x27;).addEventListener(&#x27;click&#x27;, openSharePointTab);
-$(&#x27;clearBtn&#x27;).addEventListener(&#x27;click&#x27;, clearResult);
-$(&#x27;sampleBtn&#x27;).addEventListener(&#x27;click&#x27;, ()=&gt;$(&#x27;file&#x27;).click());
-loadSharePointFrame();
 &lt;/script&gt;
 &lt;/body&gt;&lt;/html&gt;"></iframe>
     </div>
