@@ -6,7 +6,7 @@
 <title>PBSU T2 PrePlanned OT - Pro Date Filter</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f6fa;color:#111827;font-size:14px} .wrap{display:grid;grid-template-columns:52% 48%;height:100vh}.left{padding:16px;overflow:auto;background:#fff;border-right:1px solid #ddd}.right{height:100%;background:#f8fafc}.spframe{width:100%;height:100%;border:0}h1{font-size:24px;margin:0 0 4px}.sub{color:#64748b;margin:0 0 14px;line-height:1.45}.card{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:8px;padding:9px 12px;background:#0f62fe;color:#fff;font-weight:700;cursor:pointer}.btn.sec{background:#475569}.btn.warn{background:#b45309}.btn:disabled{background:#94a3b8;cursor:not-allowed}textarea{width:100%;min-height:135px;border:1px solid #cbd5e1;border-radius:10px;padding:10px;font-family:Consolas,monospace;font-size:12px;resize:vertical}input,select{border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#fff}.hint{font-size:12px;color:#64748b;line-height:1.45}.status{padding:9px 11px;border-radius:9px;background:#f1f5f9;color:#334155;margin-top:8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}.stat b{font-size:22px;display:block}.dategrid{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto;padding:8px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}.datechip{border:1px solid #cbd5e1;border-radius:20px;padding:6px 9px;background:#fff;cursor:pointer;font-size:12px}.datechip.sel{background:#0f62fe;color:#fff;border-color:#0f62fe}.datechip.has{border-color:#16a34a}.datechip.ot2{box-shadow:inset 0 -3px 0 #a855f7}.tools{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:10px 0}.search{width:260px}.tblwrap{overflow:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:48vh}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f1f5f9;z-index:1;text-transform:uppercase;font-size:11px;color:#475569}tr:hover td{background:#f8fafc}.badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:700}.b2{background:#dbeafe;color:#1d4ed8}.bot2{background:#ede9fe;color:#6d28d9}.issue{background:#fef3c7;color:#92400e}.ok{background:#dcfce7;color:#166534}.off{opacity:.35}.mini{font-size:11px;color:#64748b}.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.chkline{display:flex;align-items:center;gap:6px}.hidden{display:none}@media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}.right{height:65vh}.stats,.cols{grid-template-columns:1fr 1fr}.search{width:100%}}</style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f6fa;color:#111827;font-size:14px} .wrap{display:grid;grid-template-columns:52% 48%;height:100vh}.left{padding:16px;overflow:auto;background:#fff;border-right:1px solid #ddd}.right{height:100%;background:#f8fafc}.spframe{width:100%;height:100%;border:0}h1{font-size:24px;margin:0 0 4px}.sub{color:#64748b;margin:0 0 14px;line-height:1.45}.card{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:8px;padding:9px 12px;background:#0f62fe;color:#fff;font-weight:700;cursor:pointer}.btn.sec{background:#475569}.btn.warn{background:#b45309}.btn:disabled{background:#94a3b8;cursor:not-allowed}textarea{width:100%;min-height:135px;border:1px solid #cbd5e1;border-radius:10px;padding:10px;font-family:Consolas,monospace;font-size:12px;resize:vertical}input,select{border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#fff}.hint{font-size:12px;color:#64748b;line-height:1.45}.status{padding:9px 11px;border-radius:9px;background:#f1f5f9;color:#334155;margin-top:8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}.stat b{font-size:22px;display:block}.dategrid{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto;padding:8px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}.datechip{border:1px solid #cbd5e1;border-radius:20px;padding:6px 9px;background:#fff;cursor:pointer;font-size:12px}.datechip.sel{background:#0f62fe;color:#fff;border-color:#0f62fe}.datechip.has{border-color:#16a34a}.datechip.ot2{box-shadow:inset 0 -3px 0 #a855f7}.tools{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:10px 0}.search{width:260px}.tblwrap{overflow:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:48vh}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f1f5f9;z-index:1;text-transform:uppercase;font-size:11px;color:#475569}tr:hover td{background:#f8fafc}.badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:700}.b2{background:#dbeafe;color:#1d4ed8}.bot2{background:#ede9fe;color:#6d28d9}.issue{background:#fef3c7;color:#92400e}.ok{background:#dcfce7;color:#166534}.off{opacity:.35}.mini{font-size:11px;color:#64748b}.colorDot{display:inline-block;width:12px;height:12px;border:1px solid #94a3b8;border-radius:3px;vertical-align:middle;margin-right:4px}.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.chkline{display:flex;align-items:center;gap:6px}.hidden{display:none}@media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}.right{height:65vh}.stats,.cols{grid-template-columns:1fr 1fr}.search{width:100%}}</style>
 </head>
 <body>
 <div class="wrap">
@@ -18,14 +18,14 @@
     <b>Step 1 - Paste roster rows</b>
     <div class="row"><button class="btn sec" onclick="clearAll()">Clear</button><button class="btn" onclick="openSP()">Open full SharePoint</button></div>
   </div>
-  <p class="hint">Select SharePoint table rows including the header/date row, copy, then paste below. This version does not scan all dates blindly.</p>
+  <p class="hint">Select SharePoint table rows including the header/date row, copy, then paste below. If rich clipboard data is available, this version reads cell background colour. If only plain text is pasted, colour cannot be detected.</p>
   <textarea id="pasteBox" placeholder="Paste SharePoint copied rows here..."></textarea>
-  <div class="row" style="margin-top:8px"><button class="btn" onclick="prepareDates()">1. Detect Dates</button><button class="btn warn" id="analyseBtn" onclick="analyseSelectedDates()" disabled>2. Smart Analyse Selected Date</button></div>
+  <div class="row" style="margin-top:8px"><label class="chkline"><input type="checkbox" id="strictColour" checked> Require actual colour: 2=blue, OT2=green</label><button class="btn" onclick="prepareDates()">1. Detect Dates</button><button class="btn warn" id="analyseBtn" onclick="analyseSelectedDates()" disabled>2. Smart Analyse Selected Date</button></div>
   <div id="status" class="status">Waiting for pasted rows.</div>
 </div>
 <div class="card" id="dateCard" style="display:none">
   <b>Step 2 - Select date</b>
-  <p class="hint">Green border = date column has 2/OT2. Purple underline = has OT2. You can select one or multiple dates.</p>
+  <p class="hint">Green border = selected-date column has valid coloured OT cells. Purple underline = has OT2 green. If no colour is captured, turn off strict colour only if you want value fallback.</p>
   <div class="row" style="margin-bottom:8px">
     <label class="chkline"><input type="checkbox" id="multiMode" onchange="renderDateChips()"> Multi-date</label>
     <button class="btn sec" onclick="selectAllDatesWithOT()">Select all dates with OT</button>
@@ -54,7 +54,275 @@
     <input id="search" class="search" placeholder="Search ID, name, team..." oninput="renderResults()">
     <div class="row"><button class="btn sec" onclick="setAll(true)">Select all</button><button class="btn sec" onclick="setAll(false)">Unselect all</button><button class="btn" onclick="exportExcel()">Export PrePlanned OT Result</button></div>
   </div>
-  <div class="tblwrap"><table><thead><tr><th>Use</th><th>Date</th><th>Type</th><th>ID</th><th>Name</th><th>Team</th><th>Appointment</th><th>Cell</th><th>Review</th></tr></thead><tbody id="tbody"></tbody></table></div>
+  <div class="tblwrap"><table><thead><tr><th>Use</th><th>Date</th><th>Type</th><th>ID</th><th>Name</th><th>Team</th><th>Appointment</th><th>Cell</th><th>Colour</th><th>Review</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</div>
+</section>
+<section class="right">
+<iframe class="spframe" src="https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc={f3b64f6d-79a4-4a09-9d15-6ac808a7874a}&action=embedview&wdAllowInteractivity=False&wdDownloadButton=True&wdInConfigurator=True&edaebf=rslc0"></iframe>
+</section>
+</div>
+<script>
+let rows=[], colorRows=[], richClipboard=false, headerIndex=-1, header=[], dateCols=[], selectedDates=new Set(), results=[];
+const $=id=>document.getElementById(id);
+function norm(v){return String(v??'').replace(/\u00a0/g,' ').trim();}
+function up(v){return norm(v).toUpperCase();}
+function cleanName(v){return norm(v).replace(/\s*\((X|NX)\)\s*/gi,' ').replace(/\s+/g,' ').trim();}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function colName(i){let n=i+1,s='';while(n>0){let m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-m)/26)}return s;}
+function openSP(){window.open('https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc=%7BF3B64F6D-79A4-4A09-9D15-6AC808A7874A%7D&file=Book.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1','_blank','noopener');}
+
+$('pasteBox').addEventListener('paste', function(e){
+  const html = e.clipboardData && e.clipboardData.getData('text/html');
+  if(html && /<table|<tr|<td|<th/i.test(html)){
+    const parsed = parseClipboardHtml(html);
+    if(parsed.rows.length){
+      e.preventDefault();
+      rows = parsed.rows;
+      colorRows = parsed.colors;
+      richClipboard = true;
+      this.value = rows.map(r=>r.join('\t')).join('\n');
+      $('status').textContent = 'Rich SharePoint/Excel paste captured with formatting. Click Detect Dates.';
+      return;
+    }
+  }
+  richClipboard = false;
+  colorRows = [];
+  setTimeout(()=>{$('status').textContent='Plain text pasted. Colour cannot be detected from plain text.'},0);
+});
+
+function parseClipboardHtml(html){
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const table = doc.querySelector('table');
+  const trs = Array.from(table ? table.querySelectorAll('tr') : doc.querySelectorAll('tr'));
+  const out=[], colors=[];
+  trs.forEach(tr=>{
+    const cells=Array.from(tr.querySelectorAll('th,td'));
+    if(!cells.length) return;
+    const row=[], crow=[];
+    cells.forEach(td=>{
+      const colspan = parseInt(td.getAttribute('colspan')||'1',10);
+      const text = norm(td.innerText || td.textContent || '');
+      const color = extractCellColor(td);
+      for(let i=0;i<colspan;i++){row.push(text); crow.push(color);}
+    });
+    if(row.some(v=>norm(v))) {out.push(row); colors.push(crow);}
+  });
+  return {rows:out, colors};
+}
+function extractCellColor(td){
+  const style = td.getAttribute('style') || '';
+  const bgcolor = td.getAttribute('bgcolor') || '';
+  let raw = bgcolor;
+  const patterns = [/background-color\s*:\s*([^;]+)/i,/background\s*:\s*([^;]+)/i,/mso-pattern\s*:[^;]+\s+([^;]+)/i];
+  for(const re of patterns){ const m=style.match(re); if(m){ raw=m[1]; break; } }
+  raw = norm(raw).replace(/!important/i,'').trim();
+  const rgb = cssColorToRgb(raw);
+  const cls = classifyRgb(rgb);
+  return {raw, rgb, cls};
+}
+function cssColorToRgb(s){
+  s=norm(s).toLowerCase();
+  if(!s || s==='transparent' || s==='none') return '';
+  const named = {blue:'#0000ff',green:'#008000',lime:'#00ff00',cyan:'#00ffff',aqua:'#00ffff',teal:'#008080',yellow:'#ffff00',white:'#ffffff'};
+  if(named[s]) s=named[s];
+  let m=s.match(/#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})/i);
+  if(m){ let h=m[1]; if(h.length===3) h=h.split('').map(x=>x+x).join(''); if(h.length===8) h=h.slice(2); return h.toUpperCase(); }
+  m=s.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if(m){ return [m[1],m[2],m[3]].map(n=>Math.max(0,Math.min(255,parseInt(n,10))).toString(16).padStart(2,'0')).join('').toUpperCase(); }
+  return '';
+}
+function classifyRgb(rgb){
+  if(!rgb || rgb.length<6) return 'none';
+  const r=parseInt(rgb.slice(0,2),16), g=parseInt(rgb.slice(2,4),16), b=parseInt(rgb.slice(4,6),16);
+  if(g>=120 && g>=r+20 && g>=b-10) return 'green';
+  if(b>=120 && b>=r+20 && b>=g-35) return 'blue';
+  return 'other';
+}
+function isId(v){return /^\d{5,6}$/.test(norm(v));}
+function validByColour(val, colour){
+  val=up(val); const cls=colour?.cls || 'none';
+  if(val==='2' && cls==='blue') return true;
+  if(val==='OT2' && cls==='green') return true;
+  return false;
+}
+function parseDateToken(v){let s=norm(v); if(!s) return null; let m=s.match(/^(\d{1,2})[-\/\s]?([A-Za-z]{3,}|\d{1,2})(?:[-\/\s]?(\d{2,4}))?$/); if(m){let d=m[1].padStart(2,'0'), mon=m[2], y=m[3]||''; return y?`${d}-${mon}-${y}`:`${d}-${mon}`;} if(/^(MON|TUE|WED|THU|FRI|SAT|SUN)$/i.test(s)) return null; if(/^\d{5}$/.test(s)){return null;} return null;}
+function splitRows(text){return String(text||'').split(/\r?\n/).map(l=>l.trimEnd()).filter(Boolean).map(l=> l.includes('\t') ? l.split('\t').map(norm) : l.split(/\s{2,}/).map(norm));}
+function findHeader(){
+  for(let r=0;r<Math.min(rows.length,30);r++){
+    let vals=rows[r].map(up);
+    let hasId=vals.some(v=>v==='ID'||v.includes('PERSONNEL')||v.includes('STAFF'));
+    let hasName=vals.some(v=>v==='NAME'||v.includes('OFFICER'));
+    let hasTeam=vals.some(v=>v==='TEAM');
+    if(hasId&&hasName&&hasTeam) return r;
+  }
+  return 0;
+}
+function autoColumnIndices(){
+  let h=header.map(up);
+  let id=h.findIndex(v=>v==='ID'||v.includes('PERSONNEL')||v.includes('STAFF'));
+  let name=h.findIndex(v=>v==='NAME'||v.includes('OFFICER'));
+  let team=h.findIndex(v=>v==='TEAM');
+  let appt=h.findIndex(v=>v.includes('APPOINT')||v.includes('DEPLOY')||v.includes('DUTY'));
+  if(id<0||name<0||team<0){
+    for(let r=headerIndex+1;r<Math.min(rows.length,headerIndex+20);r++){
+      let row=rows[r];
+      for(let c=0;c<row.length;c++) if(isId(row[c])){id=c; name=c+1; team=c+2; appt=c+3; break;}
+      if(id>=0) break;
+    }
+  }
+  return {id,name,team,appt};
+}
+function populateSelect(id, selected){
+  let sel=$(id); sel.innerHTML='';
+  let max=Math.max(...rows.map(r=>r.length), header.length);
+  for(let i=0;i<max;i++){
+    let label=(header[i]||'') ? `${colName(i)} - ${header[i]}` : colName(i);
+    sel.innerHTML+=`<option value="${i}" ${i===selected?'selected':''}>${escapeHtml(label)}</option>`;
+  }
+}
+function prepareDates(){
+  if(!richClipboard){ rows=splitRows($('pasteBox').value); colorRows=[]; }
+  results=[]; selectedDates.clear();
+  if(!rows.length){$('status').textContent='Paste box is empty.';return;}
+  headerIndex=findHeader(); header=rows[headerIndex]||[];
+  const cols=autoColumnIndices();
+  populateSelect('idCol', cols.id); populateSelect('nameCol', cols.name); populateSelect('teamCol', cols.team); populateSelect('apptCol', cols.appt);
+  let rosterStart=Math.max(cols.id,cols.name,cols.team,cols.appt)+1;
+  let maxCols=Math.max(...rows.map(r=>r.length)); dateCols=[];
+  const strict=$('strictColour').checked;
+  for(let c=rosterStart;c<maxCols;c++){
+    let candidates=[header[c], rows[headerIndex-1]?.[c], rows[headerIndex-2]?.[c], rows[headerIndex+1]?.[c]].filter(Boolean);
+    let label=candidates.map(parseDateToken).find(Boolean) || norm(header[c]) || norm(rows[headerIndex-1]?.[c]) || colName(c);
+    let count2=0,countOT2=0,countColour=0,countMismatch=0,total=0;
+    for(let r=headerIndex+1;r<rows.length;r++){
+      let v=up(rows[r][c]); if(!v) continue; total++;
+      let colour=colorRows[r]?.[c];
+      if(v==='2') count2++;
+      if(v==='OT2') countOT2++;
+      if(validByColour(v, colour)) countColour++;
+      if((v==='2'||v==='OT2') && colorRows.length && !validByColour(v,colour)) countMismatch++;
+    }
+    const hasDate=parseDateToken(label);
+    const include = strict && richClipboard ? (hasDate || countColour) : (hasDate || count2 || countOT2);
+    if(include) dateCols.push({col:c,label,count2,countOT2,countColour,countMismatch,total});
+  }
+  $('dateCard').style.display='block'; $('mapCard').style.display='block'; $('resultCard').style.display='none';
+  $('analyseBtn').disabled=true; renderDateChips();
+  let mode = richClipboard ? 'Rich paste colour available' : 'Plain-text paste only; actual colour not available';
+  $('status').textContent=`${mode}. Dates detected: ${dateCols.length}. Select date before analysis. Header row ${headerIndex+1}.`;
+}
+function renderDateChips(){
+  const grid=$('dateGrid'); grid.innerHTML=''; const strict=$('strictColour').checked;
+  dateCols.forEach(d=>{
+    const shown = strict && richClipboard ? d.countColour : (d.count2+d.countOT2);
+    let b=document.createElement('button'); b.type='button'; b.className='datechip '+(selectedDates.has(d.col)?'sel ':'')+(shown?'has ':'')+(d.countOT2?'ot2':'');
+    b.innerHTML=`${escapeHtml(d.label)} <span class="mini">(${shown})</span>`;
+    b.title = richClipboard ? `Blue 2 / Green OT2: ${d.countColour}. Value only: ${d.count2+d.countOT2}. Colour mismatch/no colour: ${d.countMismatch}` : 'No rich colour captured; value only.';
+    b.onclick=()=>{ if(!$('multiMode').checked) selectedDates.clear(); selectedDates.has(d.col)?selectedDates.delete(d.col):selectedDates.add(d.col); $('analyseBtn').disabled=selectedDates.size===0; renderDateChips(); };
+    grid.appendChild(b);
+  });
+}
+function selectAllDatesWithOT(){selectedDates.clear(); const strict=$('strictColour').checked; dateCols.filter(d=> strict&&richClipboard ? d.countColour : d.count2+d.countOT2).forEach(d=>selectedDates.add(d.col)); $('multiMode').checked=true; $('analyseBtn').disabled=selectedDates.size===0; renderDateChips();}
+function clearDateSelection(){selectedDates.clear(); $('analyseBtn').disabled=true; renderDateChips();}
+function analyseSelectedDates(){
+  let idCol=+$('idCol').value, nameCol=+$('nameCol').value, teamCol=+$('teamCol').value, apptCol=+$('apptCol').value;
+  const strict=$('strictColour').checked;
+  results=[]; let issue=0; let seen=new Set(); let skippedColour=0;
+  for(let r=headerIndex+1;r<rows.length;r++){
+    let row=rows[r]; let id=norm(row[idCol]), name=cleanName(row[nameCol]), team=norm(row[teamCol]), appt=norm(row[apptCol]);
+    if(!id&&!name&&!team) continue; if(id && !isId(id)) continue;
+    selectedDates.forEach(c=>{
+      let val=up(row[c]); if(val!=='2'&&val!=='OT2') return;
+      let colour=colorRows[r]?.[c] || {raw:'',rgb:'',cls:'none'};
+      if(strict){
+        if(!richClipboard || !validByColour(val, colour)){ skippedColour++; return; }
+      }
+      let date=dateCols.find(d=>d.col===c)?.label || colName(c);
+      let key=`${id||name}|${team}|${date}|${val}`;
+      let review='OK';
+      if(strict && richClipboard) review = val==='2' ? 'OK - 2 with blue fill' : 'OK - OT2 with green fill';
+      if(!strict) review = 'Value fallback - colour not required';
+      if(!id||!name||!team){review='Missing ID/name/team'; issue++;}
+      if(seen.has(key)){review='Duplicate same date/type'; issue++;}
+      seen.add(key);
+      results.push({include:true,date,type:val,id,name,team,appt,cell:colName(c)+(r+1),colour,review});
+    });
+  }
+  $('resultCard').style.display='block'; renderResults();
+  const extra = skippedColour ? ` Skipped ${skippedColour} value cells because colour did not match/could not be captured.` : '';
+  $('status').textContent=`Analysis complete for ${selectedDates.size} selected date(s).${extra}`;
+}
+function setAll(v){results.forEach(r=>r.include=v); renderResults();}
+function renderResults(){
+  let q=up($('search').value); let tbody=$('tbody'); tbody.innerHTML=''; let issues=0; let exportKeys=new Set();
+  results.forEach((r,i)=>{ if(!String(r.review).startsWith('OK') && !String(r.review).startsWith('Value'))issues++; if(r.include) exportKeys.add(r.id?`ID:${r.id}`:`${r.name}|${r.team}`); });
+  $('stRows').textContent=rows.length; $('stFound').textContent=results.length; $('stUnique').textContent=exportKeys.size; $('stIssue').textContent=issues;
+  results.forEach((r,i)=>{
+    let line=up(`${r.type} ${r.id} ${r.name} ${r.team} ${r.date}`); if(q && !line.includes(q)) return;
+    let tr=document.createElement('tr'); if(!r.include) tr.className='off';
+    const rgb=r.colour?.rgb || 'FFFFFF'; const cls=r.colour?.cls || 'none';
+    tr.innerHTML=`<td><input type="checkbox" ${r.include?'checked':''} onchange="results[${i}].include=this.checked;renderResults()"></td><td>${escapeHtml(r.date)}</td><td><span class="badge ${r.type==='OT2'?'bot2':'b2'}">${r.type}</span></td><td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.team)}</td><td>${escapeHtml(r.appt)}</td><td>${escapeHtml(r.cell)}</td><td><span class="colorDot" style="background:#${escapeHtml(rgb)}"></span>${escapeHtml(cls)} ${escapeHtml(rgb)}</td><td><span class="badge ${String(r.review).startsWith('OK')?'ok':'issue'}">${escapeHtml(r.review)}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function exportExcel(){
+  let chosen=results.filter(r=>r.include); if(!chosen.length){alert('No selected rows.');return;}
+  let seen=new Set(), out=[['ID','Name','Team']];
+  chosen.forEach(r=>{let key=r.id?`ID:${r.id}`:`${r.name}|${r.team}`; if(seen.has(key))return; seen.add(key); out.push([r.id,r.name,r.team]);});
+  let ws=XLSX.utils.aoa_to_sheet(out); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'PrePlanned OT List'); XLSX.writeFile(wb, 'PrePlanned OT Result.xlsx');
+}
+function clearAll(){ $('pasteBox').value=''; rows=[]; colorRows=[]; richClipboard=false; results=[]; dateCols=[]; selectedDates.clear(); ['dateCard','mapCard','resultCard'].forEach(id=>$(id).style.display='none'); $('status').textContent='Waiting for pasted rows.'; }
+</script>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f6fa;color:#111827;font-size:14px} .wrap{display:grid;grid-template-columns:52% 48%;height:100vh}.left{padding:16px;overflow:auto;background:#fff;border-right:1px solid #ddd}.right{height:100%;background:#f8fafc}.spframe{width:100%;height:100%;border:0}h1{font-size:24px;margin:0 0 4px}.sub{color:#64748b;margin:0 0 14px;line-height:1.45}.card{border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:8px;padding:9px 12px;background:#0f62fe;color:#fff;font-weight:700;cursor:pointer}.btn.sec{background:#475569}.btn.warn{background:#b45309}.btn:disabled{background:#94a3b8;cursor:not-allowed}textarea{width:100%;min-height:135px;border:1px solid #cbd5e1;border-radius:10px;padding:10px;font-family:Consolas,monospace;font-size:12px;resize:vertical}input,select{border:1px solid #cbd5e1;border-radius:8px;padding:8px;background:#fff}.hint{font-size:12px;color:#64748b;line-height:1.45}.status{padding:9px 11px;border-radius:9px;background:#f1f5f9;color:#334155;margin-top:8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}.stat b{font-size:22px;display:block}.dategrid{display:flex;flex-wrap:wrap;gap:6px;max-height:150px;overflow:auto;padding:8px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}.datechip{border:1px solid #cbd5e1;border-radius:20px;padding:6px 9px;background:#fff;cursor:pointer;font-size:12px}.datechip.sel{background:#0f62fe;color:#fff;border-color:#0f62fe}.datechip.has{border-color:#16a34a}.datechip.ot2{box-shadow:inset 0 -3px 0 #a855f7}.tools{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:10px 0}.search{width:260px}.tblwrap{overflow:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:48vh}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#f1f5f9;z-index:1;text-transform:uppercase;font-size:11px;color:#475569}tr:hover td{background:#f8fafc}.badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:700}.b2{background:#dbeafe;color:#1d4ed8}.bot2{background:#ede9fe;color:#6d28d9}.issue{background:#fef3c7;color:#92400e}.ok{background:#dcfce7;color:#166534}.off{opacity:.35}.mini{font-size:11px;color:#64748b}.colorDot{display:inline-block;width:12px;height:12px;border:1px solid #94a3b8;border-radius:3px;vertical-align:middle;margin-right:4px}.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.chkline{display:flex;align-items:center;gap:6px}.hidden{display:none}@media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}.right{height:65vh}.stats,.cols{grid-template-columns:1fr 1fr}.search{width:100%}}</style>
+</head>
+<body>
+<div class="wrap">
+<section class="left">
+<h1>PrePlanned OT - Pro Date Filter</h1>
+<p class="sub">Paste copied SharePoint roster rows, select date first, then analyse only that date. Export clean ID / Name / Team list.</p>
+<div class="card">
+  <div class="row" style="justify-content:space-between">
+    <b>Step 1 - Paste roster rows</b>
+    <div class="row"><button class="btn sec" onclick="clearAll()">Clear</button><button class="btn" onclick="openSP()">Open full SharePoint</button></div>
+  </div>
+  <p class="hint">Select SharePoint table rows including the header/date row, copy, then paste below. If rich clipboard data is available, this version reads cell background colour. If only plain text is pasted, colour cannot be detected.</p>
+  <textarea id="pasteBox" placeholder="Paste SharePoint copied rows here..."></textarea>
+  <div class="row" style="margin-top:8px"><label class="chkline"><input type="checkbox" id="strictColour" checked> Require actual colour: 2=blue, OT2=green</label><button class="btn" onclick="prepareDates()">1. Detect Dates</button><button class="btn warn" id="analyseBtn" onclick="analyseSelectedDates()" disabled>2. Smart Analyse Selected Date</button></div>
+  <div id="status" class="status">Waiting for pasted rows.</div>
+</div>
+<div class="card" id="dateCard" style="display:none">
+  <b>Step 2 - Select date</b>
+  <p class="hint">Green border = selected-date column has valid coloured OT cells. Purple underline = has OT2 green. If no colour is captured, turn off strict colour only if you want value fallback.</p>
+  <div class="row" style="margin-bottom:8px">
+    <label class="chkline"><input type="checkbox" id="multiMode" onchange="renderDateChips()"> Multi-date</label>
+    <button class="btn sec" onclick="selectAllDatesWithOT()">Select all dates with OT</button>
+    <button class="btn sec" onclick="clearDateSelection()">Clear date</button>
+  </div>
+  <div id="dateGrid" class="dategrid"></div>
+</div>
+<div class="card" id="mapCard" style="display:none">
+  <b>Column detection</b>
+  <p class="hint">If auto-detect is wrong, change columns before analysis.</p>
+  <div class="cols">
+    <label>ID<br><select id="idCol"></select></label>
+    <label>Name<br><select id="nameCol"></select></label>
+    <label>Team<br><select id="teamCol"></select></label>
+    <label>Appointment<br><select id="apptCol"></select></label>
+  </div>
+</div>
+<div class="card" id="resultCard" style="display:none">
+  <div class="stats">
+    <div class="stat"><b id="stRows">0</b><span>Rows read</span></div>
+    <div class="stat"><b id="stFound">0</b><span>Selected OT</span></div>
+    <div class="stat"><b id="stUnique">0</b><span>Export unique</span></div>
+    <div class="stat"><b id="stIssue">0</b><span>Issues</span></div>
+  </div>
+  <div class="tools">
+    <input id="search" class="search" placeholder="Search ID, name, team..." oninput="renderResults()">
+    <div class="row"><button class="btn sec" onclick="setAll(true)">Select all</button><button class="btn sec" onclick="setAll(false)">Unselect all</button><button class="btn" onclick="exportExcel()">Export PrePlanned OT Result</button></div>
+  </div>
+  <div class="tblwrap"><table><thead><tr><th>Use</th><th>Date</th><th>Type</th><th>ID</th><th>Name</th><th>Team</th><th>Appointment</th><th>Cell</th><th>Colour</th><th>Review</th></tr></thead><tbody id="tbody"></tbody></table></div>
 </div>
 </section>
 <section class="right">
