@@ -270,13 +270,13 @@ table.ot tbody tr.skiprow{opacity:.28}
         <div class="card">
           <div class="ctitle">PrePlanned OT <span class="ctag">Split page SharePoint method</span></div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">
-            Right side opens <b>T2 Roster New.xlsx</b> from SharePoint. Select the date, copy the roster range from SharePoint Excel, then paste/analyse here. No Excel upload needed.
+            SharePoint blocks iframe reading, so this split page uses <b>Open in new tab + clipboard analysis</b>. Select the date, copy columns <b>ID, Name, Team</b> plus the date column, then paste/analyse here. No Excel upload needed.
           </p>
           <div class="holdbox" style="background:#eef4fd">
             <label>SharePoint roster link</label>
             <input id="ppShareLink" class="inl" style="width:100%;padding:8px" value="https://certiscisco.sharepoint.com/:x:/r/sites/CASCSSU/_layouts/15/doc2.aspx?sourcedoc=%7BC52400BC-052C-47FD-94BB-69F9044C4D09%7D&file=T2%20Roster%20New.xlsx&action=default&mobileredirect=true">
             <div class="bgrp" style="margin-top:8px"><button class="btn" onclick="ppOpenSharePoint()">Open / Refresh SharePoint</button><button class="btn" onclick="ppOpenNewTab()">Open in new tab</button></div>
-            <div class="hint">If the right iframe is blocked by SharePoint security, use <b>Open in new tab</b>. Analysis still works by clipboard paste.</div>
+            <div class="hint">SharePoint usually blocks iframe in normal HTML pages. Use <b>Open in new tab</b>; the analyser reads your copied cells from clipboard, not the iframe.</div>
           </div>
           <div class="holdbox">
             <label>Select roster date to analyse</label>
@@ -287,7 +287,7 @@ table.ot tbody tr.skiprow{opacity:.28}
             <label>How to grab data from SharePoint</label>
             <div class="hint" style="color:#8a5a00;opacity:1;line-height:1.6">
               1. On the right, open the tab/date in T2 Roster New.<br>
-              2. Select the roster area including <b>ID, Name, Team</b> and the date cells.<br>
+              2. Select columns <b>ID, Name, Team</b> and the selected date column. Header row is optional but recommended.<br>
               3. Press <b>Ctrl/Cmd + C</b>.<br>
               4. Click <b>Paste & Analyse copied SharePoint data</b> below.
             </div>
@@ -968,9 +968,74 @@ function ppCellBg(td){var bg=(td.style&&td.style.backgroundColor)||td.getAttribu
 function ppCellText(td){return ppClean(td.innerText||td.textContent||'');}
 async function ppPasteAndAnalyze(){try{ppMsg('Reading clipboard...','warn'); var html=''; if(navigator.clipboard&&navigator.clipboard.read){var items=await navigator.clipboard.read(); for(var i=0;i<items.length;i++){if(items[i].types.includes('text/html')){html=await (await items[i].getType('text/html')).text(); break;}}} if(!html && navigator.clipboard&&navigator.clipboard.readText){var txt=await navigator.clipboard.readText(); html='<table>'+txt.split(/\r?\n/).filter(Boolean).map(function(r){return '<tr>'+r.split('\t').map(function(c){return '<td>'+ppEsc(c)+'</td>';}).join('')+'</tr>';}).join('')+'</table>';}
 if(!html)throw new Error('Clipboard is empty. Copy the roster cells from SharePoint first.'); ppAnalyzeClipboardHtml(html);}catch(err){console.error(err); ppMsg('Error: '+err.message+' If browser asks permission, allow clipboard access.','err');}}
-function ppAnalyzeClipboardHtml(html){var doc=new DOMParser().parseFromString(html,'text/html'); var table=doc.querySelector('table'); if(!table)throw new Error('No table found in copied data. Please copy cells from SharePoint Excel.'); var trs=Array.from(table.querySelectorAll('tr')); var grid=trs.map(function(tr){return Array.from(tr.children).map(function(td){return {text:ppCellText(td),bg:ppCellBg(td),rgb:ppHexToRgb(ppCellBg(td))};});}); var header=-1,idCol=-1,nameCol=-1,teamCol=-1; for(var r=0;r<Math.min(grid.length,40);r++){for(var c=0;c<grid[r].length;c++){var t=grid[r][c].text.toUpperCase(); if(t==='ID'||t==='SERVICE ID'||t==='PERSONNEL NO.')idCol=c; if(t==='NAME'||t==='OFFICER NAME')nameCol=c; if(t==='TEAM'||t==='NEW TEAM')teamCol=c;} if(idCol>=0&&nameCol>=0&&teamCol>=0){header=r;break;} idCol=nameCol=teamCol=-1;} if(header<0)throw new Error('Cannot find header row. Copied range must include ID, Name and Team.'); var wanted=ppSelectedDateTexts(); var dateCols=[]; for(var c2=Math.max(idCol,nameCol,teamCol)+1;c2<(grid[header]||[]).length;c2++){var ht=''; for(var rr=header;rr>=0;rr--){if(grid[rr]&&grid[rr][c2]&&grid[rr][c2].text){ht=grid[rr][c2].text;break;}} if(!wanted.length || wanted.some(function(d){return ht.indexOf(d)>=0;}))dateCols.push({c:c2,header:ht||('Column '+(c2+1))});}
-if(!dateCols.length)dateCols=[]; ppRows=[]; for(var r2=header+1;r2<grid.length;r2++){var row=grid[r2]||[]; var id=ppNormId(row[idCol]&&row[idCol].text), name=ppStripName(row[nameCol]&&row[nameCol].text), team=ppClean(row[teamCol]&&row[teamCol].text); if(!id||!name||!/\d{3,}/.test(id))continue; var scanCols=dateCols.length?dateCols:row.map(function(_,i){return {c:i,header:''};}).filter(function(x){return x.c>Math.max(idCol,nameCol,teamCol);}); scanCols.forEach(function(dc){var cell=row[dc.c]||{text:'',bg:'none',rgb:null}; var val=ppClean(cell.text).toUpperCase(); if(val!=='2'&&val!=='OT2')return; var rule=''; if(val==='2'&&ppIsBlue(cell.rgb))rule='Blue 2'; if(val==='OT2'&&ppIsGreen(cell.rgb))rule='Green OT2'; if(!rule)return; ppRows.push({rule:rule,id:id,name:name,team:team,date:dc.header,value:val,fill:cell.bg});});}
-ppRows.sort(function(a,b){return (a.date+a.name).localeCompare(b.date+b.name);}); ppRender(); if(!ppRows.length)ppMsg('No PrePlanned OT found. Check that copied cells include fill colours. Yellow 2 / yellow OT2 are ignored as NHB.','warn'); else ppMsg('Analysis complete. Review before export. Detected '+ppRows.length+' cells.','ok');}
+function ppGuessHeader(grid){
+  var header=-1,idCol=-1,nameCol=-1,teamCol=-1;
+  for(var r=0;r<Math.min(grid.length,60);r++){
+    idCol=nameCol=teamCol=-1;
+    for(var c=0;c<(grid[r]||[]).length;c++){
+      var t=(grid[r][c].text||'').toUpperCase().replace(/\s+/g,' ').trim();
+      if(t==='ID'||t==='ID.'||t==='SERVICE ID'||t==='PERSONNEL NO.'||t==='PERSONNEL NO')idCol=c;
+      if(t==='NAME'||t==='OFFICER NAME'||t==='STAFF NAME')nameCol=c;
+      if(t==='TEAM'||t==='NEW TEAM'||t==='GROUP')teamCol=c;
+    }
+    if(idCol>=0&&nameCol>=0&&teamCol>=0)return {header:r,idCol:idCol,nameCol:nameCol,teamCol:teamCol,mode:'header'};
+  }
+  // Fallback for copied SharePoint range without header row: usually columns are ID, NAME, TEAM, APPOINTMENT, dates...
+  for(var r2=0;r2<Math.min(grid.length,20);r2++){
+    var row=grid[r2]||[];
+    for(var c2=0;c2<Math.min(row.length-2,8);c2++){
+      var id=ppNormId(row[c2]&&row[c2].text), nm=ppClean(row[c2+1]&&row[c2+1].text), tm=ppClean(row[c2+2]&&row[c2+2].text);
+      if(/^\d{4,}$/.test(id) && /[A-Za-z]/.test(nm) && /^[A-Za-z0-9]{1,6}$/.test(tm)){
+        return {header:r2-1,idCol:c2,nameCol:c2+1,teamCol:c2+2,mode:'no-header'};
+      }
+    }
+  }
+  return null;
+}
+function ppAnalyzeClipboardHtml(html){
+  var doc=new DOMParser().parseFromString(html,'text/html');
+  var table=doc.querySelector('table');
+  if(!table)throw new Error('No table found in copied data. Please copy cells from SharePoint Excel.');
+  var trs=Array.from(table.querySelectorAll('tr'));
+  var grid=trs.map(function(tr){return Array.from(tr.children).map(function(td){return {text:ppCellText(td),bg:ppCellBg(td),rgb:ppHexToRgb(ppCellBg(td))};});});
+  if(!grid.length)throw new Error('Copied data is empty.');
+  var guess=ppGuessHeader(grid);
+  if(!guess)throw new Error('Cannot detect roster columns. Copy columns including ID, Name, Team and the selected date column. Do not copy only the date column.');
+  var header=guess.header, idCol=guess.idCol, nameCol=guess.nameCol, teamCol=guess.teamCol;
+  var wanted=ppSelectedDateTexts();
+  var dateCols=[];
+  if(guess.mode==='header'){
+    for(var c2=Math.max(idCol,nameCol,teamCol)+1;c2<(grid[header]||[]).length;c2++){
+      var ht='';
+      for(var rr=header;rr>=0;rr--){if(grid[rr]&&grid[rr][c2]&&grid[rr][c2].text){ht=grid[rr][c2].text;break;}}
+      if(!wanted.length || wanted.some(function(d){return ht.indexOf(d)>=0;}))dateCols.push({c:c2,header:ht||('Column '+(c2+1))});
+    }
+  }
+  ppRows=[];
+  var firstDataRow=guess.mode==='header'?header+1:Math.max(0,header+1);
+  for(var r2=firstDataRow;r2<grid.length;r2++){
+    var row=grid[r2]||[];
+    var id=ppNormId(row[idCol]&&row[idCol].text), name=ppStripName(row[nameCol]&&row[nameCol].text), team=ppClean(row[teamCol]&&row[teamCol].text);
+    if(!id||!name||!/^\d{4,}$/.test(id))continue;
+    var scanCols=[];
+    if(dateCols.length) scanCols=dateCols;
+    else scanCols=row.map(function(_,i){return {c:i,header: wanted[0]||('Column '+(i+1))};}).filter(function(x){return x.c>Math.max(idCol,nameCol,teamCol);});
+    scanCols.forEach(function(dc){
+      var cell=row[dc.c]||{text:'',bg:'none',rgb:null};
+      var val=ppClean(cell.text).toUpperCase();
+      if(val!=='2'&&val!=='OT2')return;
+      var rule='';
+      if(val==='2'&&ppIsBlue(cell.rgb))rule='Blue 2';
+      if(val==='OT2'&&ppIsGreen(cell.rgb))rule='Green OT2';
+      if(!rule)return;
+      ppRows.push({rule:rule,id:id,name:name,team:team,date:dc.header,value:val,fill:cell.bg});
+    });
+  }
+  ppRows.sort(function(a,b){return (a.date+a.name).localeCompare(b.date+b.name);});
+  ppRender();
+  if(!ppRows.length)ppMsg('No PrePlanned OT found. Make sure copied cells include the colour formatting. Blue 2 and green OT2 only. Yellow 2 / yellow OT2 are ignored as NHB.','warn');
+  else ppMsg('Analysis complete. Review before export. Detected '+ppRows.length+' cells. '+(guess.mode==='no-header'?'Header row was not copied, so columns were auto-detected.':''),'ok');
+}
 function ppUniqueRows(){var seen=new Set(), out=[]; ppRows.forEach(function(r){var k=r.id+'|'+r.name+'|'+r.team; if(!seen.has(k)){seen.add(k); out.push(r);}}); return out;}
 function ppRender(){var body=document.getElementById('ppBody'); if(!body)return; body.innerHTML=''; ppRows.forEach(function(r){var cls=r.rule.indexOf('Blue')>=0?'crf':'ot'; body.insertAdjacentHTML('beforeend','<tr data-pp="'+ppEsc((r.rule+' '+r.id+' '+r.name+' '+r.team+' '+r.date).toLowerCase())+'"><td><span class="tag '+cls+'">'+ppEsc(r.rule)+'</span></td><td>'+ppEsc(r.id)+'</td><td>'+ppEsc(r.name)+'</td><td>'+ppEsc(r.team)+'</td><td>'+ppEsc(r.date)+'</td><td>'+ppEsc(r.value)+'</td><td>'+ppEsc(r.fill)+'</td></tr>');}); document.getElementById('ppResultCard').style.display=ppRows.length?'block':'none'; document.getElementById('ppExportBtn').disabled=!ppRows.length; document.getElementById('ppTotal').textContent=ppRows.length; document.getElementById('ppUnique').textContent=ppUniqueRows().length; document.getElementById('ppBlue').textContent=ppRows.filter(function(r){return r.rule==='Blue 2';}).length; document.getElementById('ppGreen').textContent=ppRows.filter(function(r){return r.rule==='Green OT2';}).length;}
 function ppFilter(q){q=String(q||'').toLowerCase(); document.querySelectorAll('#ppBody tr').forEach(function(tr){tr.style.display=tr.getAttribute('data-pp').indexOf(q)>=0?'':'none';});}
