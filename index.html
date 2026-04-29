@@ -1,173 +1,231 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>OT Claim Builder - Split Smart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBSU T2 PrePlanned OT - Smart Paste AI</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
 <style>
-body{margin:0;font-family:Arial;background:#f5f6fa}
-.container{display:flex;height:100vh}
-
-/* LEFT PANEL */
-.left{
-width:50%;
-padding:16px;
-overflow:auto;
-background:#fff;
-border-right:1px solid #ddd;
-}
-
-/* RIGHT PANEL */
-.right{
-width:50%;
-height:100%;
-}
-
-iframe{
-width:100%;
-height:100%;
-border:none;
-}
-
-h2{margin-top:0}
-button{
-padding:8px 12px;
-border:none;
-border-radius:6px;
-background:#007bff;
-color:#fff;
-cursor:pointer;
-margin-top:8px;
-}
-textarea{
-width:100%;
-height:120px;
-margin-top:8px;
-}
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:12px;
-font-size:13px;
-}
-th,td{
-border:1px solid #ddd;
-padding:6px;
-}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#1f2937}.app{display:grid;grid-template-columns:52% 48%;height:100vh}.left{padding:18px;overflow:auto;background:#fff;border-right:1px solid #d7dde5}.right{background:#eef2f7;display:flex;flex-direction:column}.viewerHead{padding:10px 12px;background:#172033;color:#fff;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}.viewerHead button,.btn{border:0;border-radius:8px;padding:9px 13px;font-weight:700;cursor:pointer}.viewerHead button{background:#fff;color:#172033}.spframe{width:100%;height:100%;border:0;background:#fff}h1{font-size:21px;margin:0 0 4px}.sub{font-size:13px;color:#64748b;margin:0 0 14px}.card{background:#fff;border:1px solid #dfe5ec;border-radius:12px;padding:14px;margin-bottom:12px}.hint{background:#eef6ff;border-color:#b9d7ff;color:#164b83}.warn{background:#fff8e6;border-color:#f0d28a;color:#6f4b00}.ok{background:#ecfdf3;border-color:#b7e4c7;color:#17613a}.danger{background:#fff1f1;border-color:#f5bcbc;color:#942020}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{background:#111827;color:white}.btn.secondary{background:#e5e7eb;color:#111827}.btn.green{background:#147a48}.btn:disabled{background:#9ca3af;cursor:not-allowed}textarea{width:100%;min-height:230px;border:1px solid #cfd8e3;border-radius:10px;padding:10px;font-family:Consolas,Monaco,monospace;font-size:12px;resize:vertical}input,select{border:1px solid #cfd8e3;border-radius:8px;padding:8px 10px;font-size:13px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px;text-align:center}.stat b{display:block;font-size:22px}.stat span{font-size:11px;color:#64748b}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tableWrap{overflow:auto;border:1px solid #dfe5ec;border-radius:10px}table{width:100%;border-collapse:collapse;font-size:12px;min-width:920px}th,td{padding:7px 8px;border-bottom:1px solid #edf1f5;text-align:left;vertical-align:top}th{background:#f1f5f9;font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:.03em}tr:hover td{background:#fbfdff}.tag{display:inline-block;border-radius:999px;padding:2px 7px;font-weight:700;font-size:11px}.tag.blue{background:#e8f1ff;color:#1a4a8a;border:1px solid #b8d0f5}.tag.green{background:#eaf7ef;color:#17613a;border:1px solid #b7e4c7}.tag.warn{background:#fff8e6;color:#8a5a00;border:1px solid #f0d28a}.tag.err{background:#fff1f1;color:#942020;border:1px solid #f5bcbc}.small{font-size:12px;color:#64748b}.manual{width:18px;height:18px}.badrow{opacity:.55}.search{width:100%;margin-bottom:8px}.splitNote{font-size:12px;line-height:1.5}.footerNote{font-size:12px;color:#64748b;margin-top:8px}@media(max-width:900px){.app{grid-template-columns:1fr;height:auto}.right{height:70vh}.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
-
 <body>
+<div class="app">
+  <section class="left">
+    <h1>PrePlanned OT - Smart Paste AI</h1>
+    <p class="sub">Copy rows from the SharePoint roster viewer, paste here, auto-detect ID / Name / Team / roster columns, then export clean list.</p>
 
-<div class="container">
+    <div class="card hint splitNote">
+      <b>How to use:</b> On the right SharePoint viewer, select the roster table rows → copy → paste below → click <b>Smart Analyse Paste</b>. This does not bypass SharePoint security; it analyses only what you copied.
+    </div>
 
-<!-- LEFT: ANALYSER -->
-<div class="left">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <b>Paste SharePoint copied rows</b>
+        <div class="row">
+          <button class="btn secondary" onclick="clearPaste()">Clear</button>
+          <button class="btn" onclick="smartAnalyse()">Smart Analyse Paste</button>
+        </div>
+      </div>
+      <textarea id="pasteBox" placeholder="Paste copied SharePoint rows here. Works with tab-separated cells, comma rows, or spacing copied from Excel web."></textarea>
+      <div id="status" class="footerNote">Waiting for pasted rows.</div>
+    </div>
 
-<h2>PrePlanned OT</h2>
+    <div class="grid" id="stats" style="display:none">
+      <div class="stat"><b id="stRows">0</b><span>Rows read</span></div>
+      <div class="stat"><b id="stFound">0</b><span>OT found</span></div>
+      <div class="stat"><b id="stDup">0</b><span>Duplicate IDs</span></div>
+      <div class="stat"><b id="stIssue">0</b><span>Review issues</span></div>
+    </div>
 
-<button onclick="openSP()">Open SharePoint</button>
+    <div class="card" id="reviewCard" style="display:none">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <div>
+          <b>Review result</b>
+          <div class="small" id="detectedInfo"></div>
+        </div>
+        <div class="row">
+          <button class="btn secondary" onclick="selectAll(true)">Select all</button>
+          <button class="btn secondary" onclick="selectAll(false)">Unselect all</button>
+          <button class="btn green" id="exportBtn" onclick="exportExcel()">Export PrePlanned OT Result</button>
+        </div>
+      </div>
+      <input class="search" id="searchBox" placeholder="Search ID, name, team, type..." oninput="renderResults()">
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>Use</th><th>Type</th><th>ID</th><th>Name</th><th>Team</th><th>Roster column/date</th><th>Value</th><th>Confidence</th><th>Review note</th></tr></thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+      </div>
+    </div>
 
-<p>Upload Excel OR paste rows</p>
+    <div class="card warn">
+      <b>Important:</b> Paste method cannot read colour from SharePoint. It detects exact values <b>2</b> and <b>OT2</b> in roster columns. Untick any row you do not want before export.
+    </div>
+  </section>
 
-<input type="file" id="file">
-
-<textarea id="paste" placeholder="Paste SharePoint rows here"></textarea>
-<button onclick="parsePaste()">Analyse Paste</button>
-
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Team</th>
-<th>Type</th>
-</tr>
-</thead>
-<tbody id="result"></tbody>
-</table>
-
-<button onclick="exportExcel()">Export</button>
-
-</div>
-
-<!-- RIGHT: SHAREPOINT VIEW -->
-<div class="right">
-
-<iframe src="https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc={f3b64f6d-79a4-4a09-9d15-6ac808a7874a}&action=embedview&wdAllowInteractivity=False&wdDownloadButton=True"></iframe>
-
-</div>
-
+  <section class="right">
+    <div class="viewerHead">
+      <span>SharePoint roster viewer</span>
+      <button onclick="openSharePointFull()">Open full SharePoint</button>
+    </div>
+    <iframe class="spframe" src="https://certiscisco-my.sharepoint.com/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc={f3b64f6d-79a4-4a09-9d15-6ac808a7874a}&action=embedview&wdAllowInteractivity=True&wdDownloadButton=True&wdInConfigurator=True&edaebf=rslc0"></iframe>
+  </section>
 </div>
 
 <script>
+let results = [];
+let parseMeta = {};
 
-function openSP(){
-window.open("https://certiscisco.sharepoint.com/:x:/r/sites/CASCSSU/_layouts/15/doc2.aspx?sourcedoc=%7BC52400BC-052C-47FD-94BB-69F9044C4D09%7D&file=T2%20Roster%20New.xlsx&action=default","_blank");
+function norm(v){return String(v ?? '').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();}
+function upper(v){return norm(v).toUpperCase();}
+function cleanName(v){return norm(v).replace(/\s*\((?:X|NX)\)\s*/gi,' ').replace(/\s+/g,' ').trim();}
+function esc(s){return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function colName(n){let s='';n++;while(n>0){let m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-m)/26);}return s;}
+function openSharePointFull(){window.open('https://certiscisco-my.sharepoint.com/:x:/r/personal/liang_chee_weng_certisgroup_com/_layouts/15/Doc.aspx?sourcedoc=%7BF3B64F6D-79A4-4A09-9D15-6AC808A7874A%7D&file=Book.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1','_blank','noopener');}
+function clearPaste(){document.getElementById('pasteBox').value=''; results=[]; document.getElementById('reviewCard').style.display='none'; document.getElementById('stats').style.display='none'; document.getElementById('status').textContent='Cleared.';}
+
+function splitRows(text){
+  return String(text||'').split(/\r?\n/).map(line=>line.trimEnd()).filter(Boolean).map(line=>{
+    if(line.includes('\t')) return line.split('\t').map(norm);
+    if(line.includes(',')) return line.split(',').map(norm);
+    return line.split(/\s{2,}/).map(norm).filter(Boolean);
+  }).filter(r=>r.some(Boolean));
 }
 
-document.getElementById("file").addEventListener("change", function(e){
-const reader = new FileReader();
-reader.onload = function(evt){
-const data = new Uint8Array(evt.target.result);
-const wb = XLSX.read(data, {type:"array"});
-const sheet = wb.Sheets[wb.SheetNames[0]];
-const json = XLSX.utils.sheet_to_json(sheet, {header:1});
-
-processData(json);
-};
-reader.readAsArrayBuffer(e.target.files[0]);
-});
-
-function parsePaste(){
-let text = document.getElementById("paste").value;
-let rows = text.split("\n").map(r=>r.split("\t"));
-processData(rows);
+function scoreHeaderRow(row){
+  const vals=row.map(upper); let score=0;
+  if(vals.some(v=>v==='ID'||v==='STAFF ID'||v.includes('PERSONNEL')||v.includes('SERVICE ID'))) score+=4;
+  if(vals.some(v=>v==='NAME'||v.includes('OFFICER')||v.includes('EMPLOYEE'))) score+=4;
+  if(vals.some(v=>v==='TEAM'||v==='GRP'||v==='GROUP')) score+=3;
+  const dateLike=vals.filter(v=>/^\d{1,2}[\/\-.]\d{1,2}/.test(v)||/^\d{5}$/.test(v)||/MON|TUE|WED|THU|FRI|SAT|SUN|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC/.test(v)).length;
+  score += Math.min(dateLike,5);
+  return score;
 }
 
-function processData(rows){
-let tbody = document.getElementById("result");
-tbody.innerHTML="";
-
-let header = rows[0];
-
-let idCol = header.findIndex(h=>h.toString().toUpperCase().includes("ID"));
-let nameCol = header.findIndex(h=>h.toString().toUpperCase().includes("NAME"));
-let teamCol = header.findIndex(h=>h.toString().toUpperCase().includes("TEAM"));
-
-for(let i=1;i<rows.length;i++){
-let row = rows[i];
-
-for(let c=teamCol+1;c<row.length;c++){
-let val = (row[c]||"").toString().toUpperCase();
-
-if(val==="2" || val==="OT2"){
-let tr = document.createElement("tr");
-
-tr.innerHTML = `
-<td>${row[idCol]}</td>
-<td>${clean(row[nameCol])}</td>
-<td>${row[teamCol]}</td>
-<td>${val}</td>
-`;
-
-tbody.appendChild(tr);
-}
-}
-}
+function findHeader(rows){
+  let best={idx:-1,score:-1};
+  for(let i=0;i<Math.min(rows.length,30);i++){
+    const sc=scoreHeaderRow(rows[i]);
+    if(sc>best.score) best={idx:i,score:sc};
+  }
+  return best.score>=6?best.idx:0;
 }
 
-function clean(name){
-return (name||"").replace(/\((X|NX)\)/gi,"").trim();
+function findCols(header, rows, hidx){
+  const maxCols=Math.max(...rows.map(r=>r.length));
+  const hdr=Array.from({length:maxCols},(_,i)=>upper(header[i]||''));
+  let idCol=hdr.findIndex(v=>v==='ID'||v==='STAFF ID'||v.includes('PERSONNEL')||v.includes('SERVICE ID'));
+  let nameCol=hdr.findIndex(v=>v==='NAME'||v==='OFFICER'||v.includes('OFFICER NAME')||v.includes('EMPLOYEE'));
+  let teamCol=hdr.findIndex(v=>v==='TEAM'||v==='GRP'||v==='GROUP');
+
+  // Data-shape fallback
+  for(let c=0;c<maxCols;c++){
+    const sample=rows.slice(hidx+1,hidx+12).map(r=>norm(r[c])).filter(Boolean);
+    if(idCol<0 && sample.length && sample.filter(v=>/^\d{4,}$/.test(v)).length>=Math.max(2,Math.floor(sample.length*.5))) idCol=c;
+    if(teamCol<0 && sample.filter(v=>/^[A-Z]{1,3}\d{0,2}$/i.test(v)).length>=2) teamCol=c;
+  }
+  if(nameCol<0){
+    for(let c=0;c<maxCols;c++){
+      if(c===idCol||c===teamCol) continue;
+      const sample=rows.slice(hidx+1,hidx+12).map(r=>norm(r[c])).filter(Boolean);
+      if(sample.filter(v=>/[A-Za-z]/.test(v)&&v.length>3&&!/^\d+$/.test(v)).length>=2){ nameCol=c; break; }
+    }
+  }
+  return {idCol,nameCol,teamCol,maxCols};
 }
+
+function isRosterHeader(v){
+  const s=upper(v);
+  return /^\d{1,2}[\/\-.]\d{1,2}/.test(s)||/^\d{5}$/.test(s)||/MON|TUE|WED|THU|FRI|SAT|SUN|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|ROSTER|DATE/.test(s);
+}
+
+function smartAnalyse(){
+  const rows=splitRows(document.getElementById('pasteBox').value);
+  results=[];
+  if(!rows.length){document.getElementById('status').textContent='Paste box is empty.';return;}
+  const hidx=findHeader(rows);
+  const header=rows[hidx]||[];
+  const cols=findCols(header, rows, hidx);
+  if(cols.idCol<0 || cols.nameCol<0 || cols.teamCol<0){
+    document.getElementById('status').textContent='Cannot detect ID / Name / Team columns. Try copy the header row together with data.';return;
+  }
+  const rosterStart=Math.max(cols.idCol,cols.nameCol,cols.teamCol)+1;
+  let rowRead=0;
+  for(let r=hidx+1;r<rows.length;r++){
+    const row=rows[r];
+    const id=norm(row[cols.idCol]);
+    const name=cleanName(row[cols.nameCol]);
+    const team=norm(row[cols.teamCol]);
+    if(!id&&!name&&!team) continue;
+    if(id && !/^\d{3,}$/.test(id)) continue;
+    rowRead++;
+    for(let c=rosterStart;c<Math.max(row.length, header.length);c++){
+      const val=upper(row[c]);
+      if(val !== '2' && val !== 'OT2') continue;
+      const head=norm(header[c] || ('Column '+colName(c)));
+      const type= val==='OT2' ? 'OT2' : '2';
+      const confidence = isRosterHeader(head) ? 'High' : 'Medium';
+      const note=[];
+      if(!id) note.push('Missing ID');
+      if(!name) note.push('Missing name');
+      if(!team) note.push('Missing team');
+      if(confidence==='Medium') note.push('Roster/date header not clear');
+      results.push({include:true,type,id,name,team,header:head,cell:colName(c)+(r+1),value:row[c],confidence,note:note.join('; ') || 'OK'});
+    }
+  }
+  const idCounts={}; results.forEach(x=>{if(x.id) idCounts[x.id]=(idCounts[x.id]||0)+1;});
+  results.forEach(x=>{ if(x.id && idCounts[x.id]>1) x.note = (x.note==='OK'?'':x.note+'; ')+'Duplicate ID'; });
+  parseMeta={rows:rowRead,hidx,cols,rosterStart};
+  document.getElementById('status').textContent = results.length ? 'Smart analysis complete. Review and export.' : 'No exact 2 or OT2 found in roster columns.';
+  renderStats(); renderResults();
+}
+
+function renderStats(){
+  const dupIds=new Set(); const count={}; results.forEach(r=>{if(r.id) count[r.id]=(count[r.id]||0)+1;}); Object.entries(count).forEach(([id,n])=>{if(n>1)dupIds.add(id);});
+  const issues=results.filter(r=>r.note && r.note!=='OK').length;
+  document.getElementById('stats').style.display='grid';
+  document.getElementById('stRows').textContent=parseMeta.rows||0;
+  document.getElementById('stFound').textContent=results.length;
+  document.getElementById('stDup').textContent=dupIds.size;
+  document.getElementById('stIssue').textContent=issues;
+  document.getElementById('detectedInfo').textContent=`Header row ${parseMeta.hidx+1}; ID=${colName(parseMeta.cols.idCol)}, Name=${colName(parseMeta.cols.nameCol)}, Team=${colName(parseMeta.cols.teamCol)}, roster starts ${colName(parseMeta.rosterStart)}`;
+}
+
+function renderResults(){
+  document.getElementById('reviewCard').style.display='block';
+  const q=upper(document.getElementById('searchBox')?.value||'');
+  const body=document.getElementById('resultBody'); body.innerHTML='';
+  results.forEach((r,i)=>{
+    const text=upper([r.type,r.id,r.name,r.team,r.header,r.note].join(' ')); if(q && !text.includes(q)) return;
+    const tr=document.createElement('tr'); if(!r.include) tr.className='badrow';
+    const typeClass=r.type==='OT2'?'green':'blue';
+    const confClass=r.confidence==='High'?'green':'warn';
+    const noteClass=r.note==='OK'?'green':(r.note.includes('Missing')?'err':'warn');
+    tr.innerHTML=`<td><input class="manual" type="checkbox" ${r.include?'checked':''} onchange="results[${i}].include=this.checked;renderResults()"></td>
+      <td><span class="tag ${typeClass}">${esc(r.type)}</span></td><td>${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${esc(r.header)}</td><td>${esc(r.value)}</td>
+      <td><span class="tag ${confClass}">${esc(r.confidence)}</span></td><td><span class="tag ${noteClass}">${esc(r.note)}</span></td>`;
+    body.appendChild(tr);
+  });
+}
+function selectAll(v){results.forEach(r=>r.include=v);renderResults();}
 
 function exportExcel(){
-let wb = XLSX.utils.table_to_book(document.querySelector("table"));
-XLSX.writeFile(wb,"PrePlanned OT Result.xlsx");
+  const selected=results.filter(r=>r.include!==false);
+  if(!selected.length){alert('No rows selected.');return;}
+  const seen=new Set();
+  const out=[['ID','Name','Team']];
+  selected.forEach(r=>{
+    const key=r.id ? 'ID:'+r.id : `${r.name}|${r.team}`;
+    if(seen.has(key)) return; seen.add(key);
+    out.push([r.id,r.name,r.team]);
+  });
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(out);
+  ws['!cols']=[{wch:14},{wch:34},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,'PrePlanned OT List');
+  XLSX.writeFile(wb,'PrePlanned OT Result.xlsx');
 }
-
 </script>
-
 </body>
 </html>
