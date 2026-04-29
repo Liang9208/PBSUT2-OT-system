@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>RMU CSSU T2 Dashboard - SharePoint Version</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+<style>
+body { margin:0; font-family:Arial; background:#f4f6f8; }
+.app { display:flex; height:100vh; }
+.left { width:50%; padding:16px; overflow:auto; background:white; }
+.right { width:50%; border-left:1px solid #ccc; }
+iframe { width:100%; height:100%; border:none; }
+
+button { padding:10px; margin:5px; cursor:pointer; background: #2563eb; color: white; border: none; border-radius: 4px; }
+button:hover { background: #1d4ed8; }
+.card { background:#f8fafc; padding:15px; margin:10px 0; border:1px solid #ddd; border-radius: 8px; }
+
+.dropbox {
+    border:2px dashed #999;
+    background:#fafafa;
+    padding:20px;
+    text-align:center;
+    cursor:pointer;
+    border-radius:10px;
+    margin-top:8px;
+    transition: 0.3s;
+}
+.dropbox.dragover { border-color:#2563eb; background:#dbeafe; }
+.file-name { margin-top:8px; font-weight:bold; color:#2563eb; font-size: 12px; }
+
+table { width:100%; border-collapse:collapse; font-size:12px; margin-top: 10px;}
+th, td { border:1px solid #ccc; padding:6px; text-align: left; }
+th { background: #eee; }
+
+.onduty { background:#d1fae5; }
+.cancel { background:#fff200; }
+.status-bar { font-weight: bold; padding: 5px; color: #d97706; }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="left">
+    <h2>RMU CSSU T2 Dashboard</h2>
+
+    <div class="card">
+        <b>1. Upload RMU Flexi Roster</b>
+        <div id="rmuDrop" class="dropbox" onclick="document.getElementById('rmuFile').click()">
+            Drop RMU File Here
+            <div id="rmuFileName" class="file-name">No file selected</div>
+        </div>
+        <input type="file" id="rmuFile" accept=".xlsx,.xls" style="display:none">
+    </div>
+
+    <div class="card">
+        <b>2. Upload SharePoint "T2 Roster New"</b>
+        <div id="spDrop" class="dropbox" onclick="document.getElementById('spFile').click()">
+            Drop Downloaded SharePoint Excel Here
+            <div id="spFileName" class="file-name">No file selected</div>
+        </div>
+        <input type="file" id="spFile" accept=".xlsx,.xls" style="display:none">
+    </div>
+
+    <div class="card">
+        <button onclick="analyzeData()">3. Analyze & Compare</button>
+        <button onclick="exportExcel()" style="background: #059669;">4. Export Final Excel</button>
+        <div class="status-bar">
+            Date: <span id="dateText">-</span> | Status: <span id="statusText">Waiting...</span>
+        </div>
+    </div>
+
+    <table id="table">
+        <tr>
+            <th>Remark</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location / Shift</th>
+            <th>Notes</th>
+        </tr>
+    </table>
+</div>
+
+<div class="right">
+    <iframe src="https://certiscisco.sharepoint.com/:x:/r/sites/CASCSSU/_layouts/15/doc2.aspx?sourcedoc=%7BC52400BC-052C-47FD-94BB-69F9044C4D09%7D&file=T2%20Roster%20New.xlsx&action=default"></iframe>
+</div>
+
+</div>
+
+<script>
+let rmuData = [];
+let spData = [];
+let finalData = [];
+let targetDate = "";
+
+// --- Helper Functions ---
+const clean = v => (v ?? "").toString().replace(/\s+/g, " ").trim();
+const norm = v => clean(v).replace(/\.0$/, "");
+const setStatus = s => document.getElementById("statusText").innerText = s;
+
+function detectDate(name) {
+    let m = name.match(/(\d{6})/);
+    if(!m) return "";
+    let d = m[1]; // YYMMDD or DDMMYY depending on your local format. 
+    // This logic assumes DDMMYY format for 26.04.2024
+    return d.slice(0,2) + "." + d.slice(2,4) + ".20" + d.slice(4,6);
+}
+
+// --- File Handling ---
+function setupDropzone(id, inputId, fileNameId, callback) {
+    const zone = document.getElementById(id);
+    const input = document.getElementById(inputId);
+    
+    zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("dragover"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
+    zone.addEventListener("drop", e => {
+        e.preventDefault();
+        zone.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if(file) {
+            document.getElementById(fileNameId).innerText = file.name;
+            callback(file);
+        }
+    });
+    input.addEventListener("change", e => {
+        const file = e.target.files[0];
+        if(file) {
+            document.getElementById(fileNameId).innerText = file.name;
+            callback(file);
+        }
+    });
+}
+
+// 1. Process RMU
+setupDropzone("rmuDrop", "rmuFile", "rmuFileName", file => {
+    targetDate = detectDate(file.name);
+    document.getElementById("dateText").innerText = targetDate;
+    
+    let reader = new FileReader();
+    reader.onload = e => {
+        let wb = XLSX.read(new Uint8Array(e.target.result), {type: "array"});
+        let ws = wb.Sheets[wb.SheetNames[0]];
+        let json = XLSX.utils.sheet_to_json(ws, {header: 1});
+        
+        rmuData = [];
+        json.slice(1).forEach(row => {
+            let loc = clean(row[1]);
+            let id = norm(row[6]);
+            if(loc.includes("CSSU T2") && id) {
+                rmuData.push({
+                    id: id,
+                    original: {
+                        "External Demand ID": clean(row[0]),
+                        "Deployment Location": loc,
+                        "Deployment Date": targetDate.replace(/\./g, "/"),
+                        "Shift Start Time": row[3], // Assumes formatting is handled later or is text
+                        "Shift End Time": row[4],
+                        "TOTAL SHIFT HOURS": row[5],
+                        "Personnel no.": id,
+                        "Person First Name": clean(row[7]),
+                        "Person Last Name": clean(row[8])
+                    }
+                });
+            }
+        });
+        setStatus("RMU Loaded: " + rmuData.length + " pax.");
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+// 2. Process SharePoint Excel
+setupDropzone("spDrop", "spFile", "spFileName", file => {
+    if(!targetDate) { alert("Please upload RMU file first to detect date!"); return; }
+    
+    let reader = new FileReader();
+    reader.onload = e => {
+        let wb = XLSX.read(new Uint8Array(e.target.result), {type: "array"});
+        
+        // Find tab matching targetDate
+        let sheetName = wb.SheetNames.find(n => n.includes(targetDate));
+        if(!sheetName) {
+            alert("Could not find tab for " + targetDate + " in SharePoint file. Available tabs: " + wb.SheetNames.join(", "));
+            return;
+        }
+        
+        let ws = wb.Sheets[sheetName];
+        let json = XLSX.utils.sheet_to_json(ws, {header: 1});
+        
+        spData = [];
+        json.forEach(row => {
+            let id = norm(row[2]); // Col C
+            let shift = clean(row[5]); // Col F
+            if(id && shift.includes("CSSU T2")) {
+                spData.push({
+                    id: id,
+                    first: clean(row[3]),
+                    last: clean(row[4]),
+                    shift: shift,
+                    note: clean((row[6]||"") + " " + (row[9]||"")),
+                    raw: row.join(" ").toLowerCase()
+                });
+            }
+        });
+        setStatus("SharePoint Data Loaded: " + spData.length + " pax found in tab " + sheetName);
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+// 3. Analyze Logic
+function isCancelled(text) {
+    const keys = ["cancel", "absent", "mc", "no show", "dnr", "medical"];
+    return keys.some(k => text.includes(k));
+}
+
+function analyzeData() {
+    if(!rmuData.length || !spData.length) { alert("Upload both files first!"); return; }
+    
+    let spMap = new Map();
+    spData.forEach(s => spMap.set(s.id, s));
+    
+    finalData = [];
+    
+    // Check RMU against SharePoint
+    rmuData.forEach(r => {
+        let s = spMap.get(r.id);
+        let remark = "Cancelled";
+        let note = "";
+        
+        if(s) {
+            remark = isCancelled(s.raw) ? "Cancelled" : "Onduty";
+            note = s.note;
+        }
+        
+        finalData.push({ ...r.original, "Remark": remark, "_Note": note });
+    });
+    
+    // Check SharePoint for names not in RMU (Add-ons)
+    let rmuIds = new Set(rmuData.map(r => r.id));
+    spData.forEach(s => {
+        if(!rmuIds.has(s.id)) {
+            finalData.push({
+                "External Demand ID": "NEW",
+                "Deployment Location": s.shift,
+                "Deployment Date": targetDate,
+                "Personnel no.": s.id,
+                "Person First Name": s.first,
+                "Person Last Name": s.last,
+                "Remark": isCancelled(s.raw) ? "Cancelled" : "Onduty",
+                "_Note": s.note
+            });
+        }
+    });
+    
+    renderTable();
+    setStatus("Analysis Complete. " + finalData.length + " total rows.");
+}
+
+function renderTable() {
+    let table = document.getElementById("table");
+    table.innerHTML = `<tr><th>Remark</th><th>ID</th><th>Name</th><th>Location / Shift</th><th>Notes</th></tr>`;
+    finalData.forEach(r => {
+        let cls = r.Remark === "Onduty" ? "onduty" : "cancel";
+        table.innerHTML += `<tr class="${cls}">
+            <td>${r.Remark}</td>
+            <td>${r["Personnel no."]}</td>
+            <td>${r["Person First Name"]} ${r["Person Last Name"]}</td>
+            <td>${r["Deployment Location"]}</td>
+            <td>${r._Note || ""}</td>
+        </tr>`;
+    });
+}
+
+// 4. Export (Using your existing ExcelJS logic)
+async function exportExcel() {
+    if(!finalData.length) return;
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Final Roster");
+    
+    const headers = Object.keys(finalData[0]).filter(k => k !== "_Note");
+    sheet.addRow(headers);
+    
+    finalData.forEach(d => {
+        const row = sheet.addRow(headers.map(h => d[h]));
+        if(d.Remark === "Cancelled") {
+            row.getCell(headers.indexOf("Remark") + 1).fill = {
+                type: 'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'}
+            };
+        }
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Final_Roster_${targetDate}.xlsx`;
+    link.click();
+}
+</script>
+</body>
+</html>
