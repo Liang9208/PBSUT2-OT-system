@@ -409,60 +409,83 @@ async function analyzeFile(file){
   const relDoc = xmlParse(relXml);
   const rels = Object.fromEntries(Array.from(relDoc.documentElement.children).map(r =&gt; [r.getAttribute('Id'), r.getAttribute('Target')]));
   const sheets = Array.from(wbDoc.getElementsByTagNameNS(NS,'sheet')).map(s =&gt; ({name:s.getAttribute('name'), id:s.getAttributeNS(RNS,'id') || s.getAttribute('r:id'), sheetId:s.getAttribute('sheetId')}));
-  const sheet = sheets.find(s =&gt; upper(s.name) === 'PREPLANNED OT') || sheets.find(s =&gt; upper(s.name).replace(/\s+/g,'') === 'PREPLANNEDOT');
-  if (!sheet) throw new Error('Cannot find sheet named PrePlanned OT / Preplanned OT. Found: '+sheets.map(s=&gt;s.name).join(', '));
-  let target = rels[sheet.id];
-  if (!target) throw new Error('Cannot resolve worksheet path for '+sheet.name);
-  if (!target.startsWith('xl/')) target = 'xl/' + target.replace(/^\//,'');
-  const sheetXml = await readText(zip, target);
-  const sheetDoc = xmlParse(sheetXml);
-  const rows = Array.from(sheetDoc.getElementsByTagNameNS(NS,'row'));
-  let grid = new Map(), maxCol=0, maxRow=0;
-  for (const row of rows){
-    for (const c of Array.from(row.getElementsByTagNameNS(NS,'c'))){
-      const ref = c.getAttribute('r'); if(!ref) continue;
-      const pos = cellRefToPos(ref); maxCol=Math.max(maxCol,pos.col); maxRow=Math.max(maxRow,pos.row);
-      const val = valueOfCell(c, shared);
-      grid.set(ref.toUpperCase(), {ref, row:pos.row, col:pos.col, val, fill:getCellFill(c, styles)});
+  function sheetPath(sheet){ let target = rels[sheet.id]; if(!target) return ''; if(!target.startsWith('xl/')) target = 'xl/' + target.replace(/^\//,''); return target; }
+  async function scanSheet(sheet){
+    const target = sheetPath(sheet);
+    if(!target) return {out:[], valueOnly:[], info:null};
+    const sheetXml = await readText(zip, target);
+    const sheetDoc = xmlParse(sheetXml);
+    const rows = Array.from(sheetDoc.getElementsByTagNameNS(NS,'row'));
+    let grid = new Map(), maxCol=0, maxRow=0;
+    for (const row of rows){
+      for (const c of Array.from(row.getElementsByTagNameNS(NS,'c'))){
+        const ref = c.getAttribute('r'); if(!ref) continue;
+        const pos = cellRefToPos(ref); maxCol=Math.max(maxCol,pos.col); maxRow=Math.max(maxRow,pos.row);
+        const val = valueOfCell(c, shared);
+        grid.set(ref.toUpperCase(), {ref, row:pos.row, col:pos.col, val, fill:getCellFill(c, styles)});
+      }
     }
-  }
-  let headerRow = null, idCol=null, nameCol=null, teamCol=null;
-  for (let r=1; r&lt;=Math.min(maxRow,20); r++){
-    let found = {};
-    for(let c=1;c&lt;=Math.min(maxCol,20);c++){
-      const v = upper(grid.get(numToCol(c)+r)?.val);
-      if(v==='ID') found.id=c;
-      if(v==='NAME' || v==='OFFICER' || v==='OFFICER NAME') found.name=c;
-      if(v==='TEAM') found.team=c;
+    let headerRow = null, idCol=null, nameCol=null, teamCol=null;
+    for (let r=1; r&lt;=Math.min(maxRow,30); r++){
+      let found = {};
+      for(let c=1;c&lt;=Math.min(maxCol,30);c++){
+        const v = upper(grid.get(numToCol(c)+r)?.val);
+        if(v==='ID' || v==='STAFF ID' || v.includes('PERSONNEL')) found.id=c;
+        if(v==='NAME' || v==='OFFICER' || v==='OFFICER NAME') found.name=c;
+        if(v==='TEAM') found.team=c;
+      }
+      if(found.id &amp;&amp; found.name &amp;&amp; found.team){ headerRow=r; idCol=found.id; nameCol=found.name; teamCol=found.team; break; }
     }
-    if(found.id &amp;&amp; found.name &amp;&amp; found.team){ headerRow=r; idCol=found.id; nameCol=found.name; teamCol=found.team; break; }
-  }
-  if(!headerRow) throw new Error('Cannot identify header row with ID, NAME, TEAM.');
-  const rosterStart = Math.max(idCol, nameCol, teamCol)+1;
-  const out=[];
-  for(let r=headerRow+1; r&lt;=maxRow; r++){
-    const id = norm(grid.get(numToCol(idCol)+r)?.val);
-    const name = cleanOfficerName(grid.get(numToCol(nameCol)+r)?.val);
-    const team = norm(grid.get(numToCol(teamCol)+r)?.val);
-    if(!id &amp;&amp; !name &amp;&amp; !team) continue;
-    for(let c=rosterStart; c&lt;=maxCol; c++){
-      const cell = grid.get(numToCol(c)+r);
-      const val = upper(cell?.val);
-      if(!cell || !val) continue;
-      const headerVal = grid.get(numToCol(c)+headerRow)?.val || numToCol(c);
-      const rosterDate = isLikelyDateSerial(headerVal) ? excelDate(headerVal) : String(headerVal);
-      const fillCls = cell.fill.cls;
-      let matchType = '';
-      if(val === '2' &amp;&amp; fillCls === 'blue') matchType = 'Rostered 2 in blue';
-      if(val === 'OT2' &amp;&amp; fillCls === 'green') matchType = 'Rostered OT2 in green';
-      if(matchType) out.push({id,name,team,rosterDate,column:numToCol(c),cell:cell.ref,value:cell.val,detectedColor:fillCls,fillRgb:cell.fill.rgb,matchType,source:'Excel colour',review:'OK - ID based'});
+    if(!headerRow) return {out:[], valueOnly:[], info:null};
+    const rosterStart = Math.max(idCol, nameCol, teamCol)+1;
+    const out=[], valueOnly=[];
+    for(let r=headerRow+1; r&lt;=maxRow; r++){
+      const id = norm(grid.get(numToCol(idCol)+r)?.val);
+      const name = cleanOfficerName(grid.get(numToCol(nameCol)+r)?.val);
+      const team = norm(grid.get(numToCol(teamCol)+r)?.val);
+      if(!id &amp;&amp; !name &amp;&amp; !team) continue;
+      if(id &amp;&amp; !/^\d{4,}$/.test(String(id))) continue;
+      for(let c=rosterStart; c&lt;=maxCol; c++){
+        const cell = grid.get(numToCol(c)+r);
+        const val = upper(cell?.val);
+        if(!cell || (val !== '2' &amp;&amp; val !== 'OT2')) continue;
+        let headerVal = grid.get(numToCol(c)+headerRow)?.val || grid.get(numToCol(c)+(headerRow-1))?.val || numToCol(c);
+        const rosterDate = isLikelyDateSerial(headerVal) ? excelDate(headerVal) : String(headerVal || numToCol(c));
+        const fillCls = cell.fill.cls;
+        let matchType = '';
+        if(val === '2' &amp;&amp; fillCls === 'blue') matchType = 'Rostered 2 in blue';
+        if(val === 'OT2' &amp;&amp; fillCls === 'green') matchType = 'Rostered OT2 in green';
+        const base = {id,name,team,rosterDate,column:numToCol(c),cell:cell.ref,value:cell.val,detectedColor:fillCls,fillRgb:cell.fill.rgb,sheetName:sheet.name};
+        if(matchType) out.push({...base, matchType, source:'Excel colour', review:'OK - ID based'});
+        else valueOnly.push({...base, matchType: val==='2' ? 'Rostered 2 (value-only fallback)' : 'Rostered OT2 (value-only fallback)', source:'Value fallback', review:'REVIEW - colour not readable; confirm this is blue/green and not yellow NHB'});
+      }
     }
+    return {out, valueOnly, info:{sheetName:sheet.name, headerRow, maxRow, maxCol, rosterStart:numToCol(rosterStart), blueFills: styles.fillColors.filter(f=&gt;f.cls==='blue').map(f=&gt;f.rgb).filter(Boolean), greenFills: styles.fillColors.filter(f=&gt;f.cls==='green').map(f=&gt;f.rgb).filter(Boolean)}};
   }
-  loaded = {zip, originalName:file.name, wbXml, relXml, sheetName:sheet.name};
-  workbookInfo = {sheetName:sheet.name, headerRow, maxRow, maxCol, rosterStart:numToCol(rosterStart), blueFills: styles.fillColors.filter(f=&gt;f.cls==='blue').map(f=&gt;f.rgb).filter(Boolean), greenFills: styles.fillColors.filter(f=&gt;f.cls==='green').map(f=&gt;f.rgb).filter(Boolean)};
-  results = out;
+  const preferred = sheets.filter(s =&gt; upper(s.name) === 'PREPLANNED OT' || upper(s.name).replace(/\s+/g,'') === 'PREPLANNEDOT');
+  const scanList = preferred.length ? preferred : sheets;
+  let allColour=[], allValueOnly=[], chosenInfo=null;
+  for(const sh of scanList){
+    const res = await scanSheet(sh);
+    if(res.info &amp;&amp; !chosenInfo) chosenInfo = res.info;
+    if(res.info &amp;&amp; (res.out.length || res.valueOnly.length)) chosenInfo = res.info;
+    allColour.push(...res.out);
+    allValueOnly.push(...res.valueOnly);
+    if(preferred.length &amp;&amp; res.out.length) break;
+  }
+  if(!chosenInfo) throw new Error('Cannot identify a roster table. Need columns ID, NAME and TEAM. Sheets checked: '+scanList.map(s=&gt;s.name).join(', '));
+  loaded = {zip, originalName:file.name, wbXml, relXml, sheetName:chosenInfo.sheetName};
+  workbookInfo = chosenInfo;
+  if(allColour.length){
+    results = allColour;
+    $('status').textContent = 'Excel analysed with colour method. Found '+results.length+' confirmed blue/green rows.';
+  }else{
+    results = allValueOnly;
+    $('status').textContent = results.length ? 'No reliable blue/green colour detected. Value-only fallback found '+results.length+' rows. Review before export; yellow NHB cannot be excluded automatically without colour.' : 'No colour matches and no 2/OT2 values found.';
+  }
   renderResults();
 }
+
 function findDuplicateIds(rows){
   const map = new Map();
   for(const r of rows){
