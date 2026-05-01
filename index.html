@@ -137,8 +137,8 @@ table.ot tbody tr.skiprow{opacity:.28}
   <p class="sub">Upload master excel &amp; flight photo. Roster sequence is preserved. Holdbacks can be pasted in Step 1.</p>
   <div class="modebar">
     <button type="button" class="modebtn active" id="modeOTBtn" onclick="switchTool('ot')">Holdback OT</button>
-    <button type="button" class="modebtn" id="modePPBtn" onclick="switchTool('pp')">PrePlanned OT</button>
     <button type="button" class="modebtn" id="modeCOBtn" onclick="switchTool('co')">Confirm Off OT</button>
+    <button type="button" class="modebtn" id="modePPBtn" onclick="switchTool('pp')">PrePlanned OT</button>
   </div>
   <div id="otMode">
   <div class="steps">
@@ -265,33 +265,6 @@ table.ot tbody tr.skiprow{opacity:.28}
     </div>
   </div>
 </div>
-  <div id="ppMode">
-    <div class="card">
-      <div class="ctitle">PrePlanned OT</div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Analyse rostered <b>2</b> in blue and <b>OT2</b> in green. Default source is <b>Roster</b> tab, column <b>F</b>. You can switch to <b>PrePlanned OT</b> tab if needed.</p>
-      <div class="apigrid" style="margin-bottom:12px">
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Data source</label>
-          <select id="ppSource" class="noteinp">
-            <option value="Roster" selected>Roster tab - Column F</option>
-            <option value="PrePlanned OT">PrePlanned OT tab</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Excel file</label>
-          <input type="file" id="ppFile" accept=".xlsx,.xls" class="noteinp">
-        </div>
-      </div>
-      <div class="alert warn">Priority set to <b>Roster</b>. For Roster source, PrePlanned OT checks <b>column F only</b>. For PrePlanned OT source, it checks all roster/date columns after ID, Name and Team.</div>
-      <div class="bgrp">
-        <button class="btn primary" onclick="runRosterModeAnalysis('pp')">Analyse PrePlanned OT</button>
-        <button class="btn" id="ppExportBtn" onclick="exportRosterModeXlsx('pp')" disabled>Export PrePlanned OT Result</button>
-      </div>
-      <div id="ppMsg"></div>
-      <div id="ppReview" style="display:none;margin-top:12px"></div>
-    </div>
-  </div>
-
   <div id="coMode">
     <div class="card">
       <div class="ctitle">Confirm Off OT</div>
@@ -319,6 +292,33 @@ table.ot tbody tr.skiprow{opacity:.28}
     </div>
   </div>
 </div>
+  <div id="ppMode">
+    <div class="card">
+      <div class="ctitle">PrePlanned OT</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Analyse rostered <b>2</b> in blue and <b>OT2</b> in green. Default source is <b>Roster</b> tab, column <b>F</b>. You can switch to <b>PrePlanned OT</b> tab if needed.</p>
+      <div class="apigrid" style="margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Data source</label>
+          <select id="ppSource" class="noteinp">
+            <option value="Roster" selected>Roster tab - Column F</option>
+            <option value="PrePlanned OT">PrePlanned OT tab</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Excel file</label>
+          <input type="file" id="ppFile" accept=".xlsx,.xls" class="noteinp">
+        </div>
+      </div>
+      <div class="alert warn">Priority set to <b>Roster</b>. For Roster source, PrePlanned OT checks <b>column F only</b>. For PrePlanned OT source, it checks all roster/date columns after ID, Name and Team.</div>
+      <div class="bgrp">
+        <button class="btn primary" onclick="runRosterModeAnalysis('pp')">Analyse PrePlanned OT</button>
+        <button class="btn" id="ppExportBtn" onclick="exportRosterModeXlsx('pp')" disabled>Export PrePlanned OT Result</button>
+      </div>
+      <div id="ppMsg"></div>
+      <div id="ppReview" style="display:none;margin-top:12px"></div>
+    </div>
+  </div>
+
 <script>
 
 function $(id){return document.getElementById(id);}
