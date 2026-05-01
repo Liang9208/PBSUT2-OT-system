@@ -121,7 +121,7 @@ table.ot tbody tr.skiprow{opacity:.28}
 .modebar{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
 .modebtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);border:1px solid var(--bmed);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;font-weight:600}
 .modebtn.active{background:var(--text);color:#fff;border-color:var(--text)}
-#ppMode{display:none}.ppframe{width:100%;height:86vh;border:1px solid var(--border);border-radius:var(--r);background:#fff}
+#ppMode,#coMode{display:none}.ppframe{width:100%;height:86vh;border:1px solid var(--border);border-radius:var(--r);background:#fff}
 </style>
 </head>
 <body>
@@ -321,6 +321,7 @@ table.ot tbody tr.skiprow{opacity:.28}
 </div>
 <script>
 
+function $(id){return document.getElementById(id);}
 const ROSTER_MODE_STATE = { pp:{results:[], title:'PrePlanned OT', outputSheet:'PrePlanned OT List', outputFile:'PrePlanned OT Result.xlsx'}, co:{results:[], title:'Confirm Off OT', outputSheet:'Confirm Off OT List', outputFile:'Confirm Off OT Result.xlsx'} };
 const XNS='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
 const XRNS='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
