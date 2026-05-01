@@ -121,7 +121,7 @@ table.ot tbody tr.skiprow{opacity:.28}
 .modebar{display:flex;gap:8px;margin:0 0 14px;flex-wrap:wrap}
 .modebtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);border:1px solid var(--bmed);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;font-weight:600}
 .modebtn.active{background:var(--text);color:#fff;border-color:var(--text)}
-#ppMode,#coMode{display:none}.ppframe{width:100%;height:86vh;border:1px solid var(--border);border-radius:var(--r);background:#fff}
+#ppMode,#coMode{display:none}
 </style>
 </head>
 <body>
@@ -291,7 +291,6 @@ table.ot tbody tr.skiprow{opacity:.28}
       <div id="coReview" style="display:none;margin-top:12px"></div>
     </div>
   </div>
-</div>
   <div id="ppMode">
     <div class="card">
       <div class="ctitle">PrePlanned OT</div>
@@ -339,8 +338,34 @@ function rmExcelDate(serial){const n=Number(serial); if(!isFinite(n))return Stri
 function rmIsDate(v){const n=Number(v); return n>30000&&n<70000;}
 async function rmReadText(zip,path,opt=false){const f=zip.file(path); if(!f){if(opt)return ''; throw new Error('Missing '+path);} return await f.async('text');}
 async function rmShared(zip){const txt=await rmReadText(zip,'xl/sharedStrings.xml',true); if(!txt)return []; const doc=rmXmlParse(txt); return rmByTag(doc.documentElement,'si').map(si=>Array.from(si.getElementsByTagNameNS(XNS,'t')).map(t=>t.textContent||'').join(''));}
-function rmClassify(rgb){if(!rgb||rgb.length<6)return 'none'; const r=parseInt(rgb.slice(0,2),16),g=parseInt(rgb.slice(2,4),16),b=parseInt(rgb.slice(4,6),16); if(g>=150&&g>r+20&&g>=b+10)return 'green'; if(b>=150&&g>=130&&r<=210&&b>=r+10)return 'blue'; return 'other';}
-function rmStyles(stylesXml){const doc=rmXmlParse(stylesXml); const fills=rmByTag(doc.documentElement,'fills')[0]?Array.from(rmByTag(doc.documentElement,'fills')[0].children):[]; const fillColors=fills.map(fill=>{const fg=fill.getElementsByTagNameNS(XNS,'fgColor')[0]||fill.getElementsByTagNameNS(XNS,'bgColor')[0]; if(!fg)return {rgb:'',cls:'none'}; let rgb=fg.getAttribute('rgb')||''; if(rgb.length===8)rgb=rgb.slice(2); rgb=rgb.toUpperCase(); return {rgb,cls:rmClassify(rgb)};}); const cellXfs=rmByTag(doc.documentElement,'cellXfs')[0]?Array.from(rmByTag(doc.documentElement,'cellXfs')[0].children):[]; const styleFills=cellXfs.map(xf=>Number(xf.getAttribute('fillId')||0)); return {fillColors,styleFills};}
+const RM_INDEXED_COLORS=['000000','FFFFFF','FF0000','00FF00','0000FF','FFFF00','FF00FF','00FFFF','000000','FFFFFF','FF0000','00FF00','0000FF','FFFF00','FF00FF','00FFFF','800000','008000','000080','808000','800080','008080','C0C0C0','808080','9999FF','993366','FFFFCC','CCFFFF','660066','FF8080','0066CC','CCCCFF','000080','FF00FF','FFFF00','00FFFF','800080','800000','008080','0000FF','00CCFF','CCFFFF','CCFFCC','FFFF99','99CCFF','FF99CC','CC99FF','FFCC99','3366FF','33CCCC','99CC00','FFCC00','FF9900','FF6600','666699','969696','003366','339966','003300','333300','993300','993366','333399','333333'];
+function rmRosterVal(v){return String(v??'').trim().toUpperCase().replace(/\.0+$/,'');}
+function rmThemeRgb(theme,tint){const base=['FFFFFF','000000','EEECE1','1F497D','4F81BD','C0504D','9BBB59','8064A2','4BACC6','F79646'][Number(theme)]||''; if(!base)return ''; let r=parseInt(base.slice(0,2),16),g=parseInt(base.slice(2,4),16),b=parseInt(base.slice(4,6),16),t=Number(tint||0); const adj=x=>Math.round(t<0?x*(1+t):x+(255-x)*t); if(t){r=adj(r);g=adj(g);b=adj(b);} return [r,g,b].map(x=>Math.max(0,Math.min(255,x)).toString(16).padStart(2,'0')).join('').toUpperCase();}
+function rmColorFromEl(el){if(!el)return ''; let rgb=el.getAttribute('rgb')||''; if(rgb){rgb=rgb.toUpperCase(); if(rgb.length===8)rgb=rgb.slice(2); return rgb;} const indexed=el.getAttribute('indexed'); if(indexed!==null)return RM_INDEXED_COLORS[Number(indexed)]||''; const theme=el.getAttribute('theme'); if(theme!==null)return rmThemeRgb(theme, el.getAttribute('tint')); return '';}
+function rmClassify(rgb){
+  if(!rgb||rgb.length<6)return 'none';
+  const r=parseInt(rgb.slice(0,2),16), g=parseInt(rgb.slice(2,4),16), b=parseInt(rgb.slice(4,6),16);
+  if(g>=145 && g>=r+25 && g>=b+15)return 'green';
+  if(b>=145 && g>=110 && b>=r+8 && g>=r-25 && !(r>225&&g>225&&b>225))return 'blue';
+  return 'other';
+}
+function rmStyles(stylesXml){
+  const doc=rmXmlParse(stylesXml);
+  const fillsNode=rmByTag(doc.documentElement,'fills')[0];
+  const fills=fillsNode?Array.from(fillsNode.children):[];
+  const fillColors=fills.map(fill=>{
+    const pattern=fill.getElementsByTagNameNS(XNS,'patternFill')[0];
+    const ptype=pattern?pattern.getAttribute('patternType'):'';
+    if(ptype && ptype!=='solid')return {rgb:'',cls:'none'};
+    const fg=fill.getElementsByTagNameNS(XNS,'fgColor')[0]||fill.getElementsByTagNameNS(XNS,'bgColor')[0];
+    const rgb=rmColorFromEl(fg);
+    return {rgb,cls:rmClassify(rgb)};
+  });
+  const cellXfsNode=rmByTag(doc.documentElement,'cellXfs')[0];
+  const cellXfs=cellXfsNode?Array.from(cellXfsNode.children):[];
+  const styleFills=cellXfs.map(xf=>Number(xf.getAttribute('fillId')||0));
+  return {fillColors,styleFills};
+}
 function rmValue(c,shared){const t=c.getAttribute('t'); const v=c.getElementsByTagNameNS(XNS,'v')[0]; if(t==='s')return shared[Number(v?.textContent||0)]||''; if(t==='inlineStr')return Array.from(c.getElementsByTagNameNS(XNS,'t')).map(x=>x.textContent||'').join(''); return v?v.textContent:'';}
 function rmFill(c,styles){const s=Number(c.getAttribute('s')||0); const fillId=styles.styleFills[s]??0; return styles.fillColors[fillId]||{rgb:'',cls:'none'};}
 function rmFindSheet(sheets, wanted){const uw=rmUpper(wanted).replace(/\s+/g,''); return sheets.find(s=>rmUpper(s.name)===rmUpper(wanted))||sheets.find(s=>rmUpper(s.name).replace(/\s+/g,'')===uw);}
@@ -365,7 +390,7 @@ async function rmAnalyseWorkbook(file, mode, sourceSheet){
   for(let r=headerRow+1;r<=maxRow;r++){
     const id=rmNorm(grid.get(rmNumToCol(idCol)+r)?.val), name=rmCleanName(grid.get(rmNumToCol(nameCol)+r)?.val), team=rmNorm(grid.get(rmNumToCol(teamCol)+r)?.val);
     if(!id&&!name&&!team)continue;
-    for(const c of scanCols){const cell=grid.get(rmNumToCol(c)+r); const val=rmUpper(cell?.val); if(!cell||!val)continue; const fillCls=cell.fill.cls; let matchType=''; if(val==='2'&&fillCls==='blue')matchType='Rostered 2 in blue'; if(val==='OT2'&&fillCls==='green')matchType='Rostered OT2 in green'; if(matchType){const headerVal=grid.get(rmNumToCol(c)+headerRow)?.val||rmNumToCol(c); out.push({id,name,team,rosterDate:rmIsDate(headerVal)?rmExcelDate(headerVal):String(headerVal),cell:cell.ref,value:cell.val,detectedColor:fillCls,fillRgb:cell.fill.rgb,matchType});}}
+    for(const c of scanCols){const cell=grid.get(rmNumToCol(c)+r); const val=rmRosterVal(cell?.val); if(!cell||!val)continue; const fillCls=cell.fill.cls; let matchType=''; if(val==='2'&&fillCls==='blue')matchType='Rostered 2 in blue'; if(val==='OT2'&&fillCls==='green')matchType='Rostered OT2 in green'; if(matchType){const headerVal=grid.get(rmNumToCol(c)+headerRow)?.val||rmNumToCol(c); out.push({id,name,team,rosterDate:rmIsDate(headerVal)?rmExcelDate(headerVal):String(headerVal),cell:cell.ref,value:cell.val,detectedColor:fillCls,fillRgb:cell.fill.rgb,matchType});}}
   }
   return {results:out, info:{fileName:file.name,sheetName:sheet.name,headerRow,scan:sourceIsRoster?(mode==='pp'?'Column F':'Column E'):'All roster columns after Team', blueFills:styles.fillColors.filter(f=>f.cls==='blue').map(f=>f.rgb).filter(Boolean), greenFills:styles.fillColors.filter(f=>f.cls==='green').map(f=>f.rgb).filter(Boolean)}};
 }
