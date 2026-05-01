@@ -34,15 +34,15 @@ body.resizing .sharepoint-frame{pointer-events:none}
 .sharepoint-link,.sharepoint-toggle{font-size:12px;color:var(--blue);text-decoration:none;border:1px solid var(--bbd);background:var(--bbg);padding:4px 8px;border-radius:var(--rs);white-space:nowrap;font-family:inherit;cursor:pointer}
 .sharepoint-toggle:hover,.sharepoint-link:hover{opacity:.85}
 .sharepoint-frame{width:100%;height:calc(100vh - 96px);min-height:720px;border:1px solid var(--border);border-radius:var(--rs);background:#fff}
-.app.sp-collapsed .main-left{width:calc(100% - 190px)!important;max-width:none}
+.app.sp-collapsed .main-left{width:calc(100% - 250px)!important;max-width:none}
 .app.sp-collapsed .splitter{display:none}
-.app.sp-collapsed .sharepoint-right{width:190px!important;min-width:190px;padding-left:8px;position:sticky;top:16px}
-.app.sp-collapsed .sharepoint-card{padding:10px;position:sticky;top:16px;overflow:hidden}
-.app.sp-collapsed .sharepoint-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;flex-wrap:nowrap}
-.app.sp-collapsed .sharepoint-title{writing-mode:initial;transform:none;margin:0;font-size:12px;white-space:nowrap;line-height:1.2}
-.app.sp-collapsed .sharepoint-actions{display:flex;align-items:center;justify-content:flex-end;width:auto;gap:0;flex-wrap:nowrap}
-.app.sp-collapsed .sharepoint-link,.app.sp-collapsed .sharepoint-frame,.app.sp-collapsed .apihint{display:none}
-.app.sp-collapsed .sharepoint-toggle{padding:4px 8px;width:auto;max-width:70px;font-size:12px}
+.app.sp-collapsed .sharepoint-right{width:250px!important;min-width:250px;padding-left:8px;position:sticky;top:16px}
+.app.sp-collapsed .sharepoint-card{padding:10px 12px;position:sticky;top:16px;overflow:visible;cursor:pointer}
+.app.sp-collapsed .sharepoint-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;flex-wrap:nowrap}
+.app.sp-collapsed .sharepoint-title{writing-mode:horizontal-tb!important;transform:none!important;margin:0;font-size:12px;white-space:nowrap;line-height:1.2;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis}
+.app.sp-collapsed .sharepoint-actions{display:flex;align-items:center;justify-content:flex-end;width:auto;gap:0;flex:0 0 auto;min-width:auto;flex-wrap:nowrap}
+.app.sp-collapsed .sharepoint-link,.app.sp-collapsed .sharepoint-frame,.app.sp-collapsed .apihint{display:none!important}
+.app.sp-collapsed .sharepoint-toggle{display:inline-flex!important;align-items:center;justify-content:center;padding:4px 10px;width:auto;min-width:64px;max-width:none;font-size:12px;position:relative;z-index:5}
 @media(max-width:900px){.app{display:block}.main-left,.sharepoint-right{width:100%!important;min-width:0;padding:0}.splitter{display:none}.sharepoint-right{position:static;margin-top:16px}.sharepoint-frame{height:650px;min-height:650px}.app.sp-collapsed .sharepoint-right{width:100%!important}.app.sp-collapsed .sharepoint-card{padding:12px}.app.sp-collapsed .sharepoint-head{display:flex;text-align:left}.app.sp-collapsed .sharepoint-title{writing-mode:initial;transform:none;margin:0;font-size:14px}.app.sp-collapsed .sharepoint-link,.app.sp-collapsed .sharepoint-frame,.app.sp-collapsed .apihint{display:none}.app.sp-collapsed .sharepoint-toggle{width:auto}}
 h1{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}
 .sub{font-size:13px;color:var(--muted);margin-bottom:18px}
@@ -349,12 +349,12 @@ table.ot tbody tr.skiprow{opacity:.28}
   <div class="splitter" id="splitter" title="Drag to resize"></div>
 
   <aside class="sharepoint-right" id="sharepointRight">
-    <div class="sharepoint-card">
+    <div class="sharepoint-card" id="sharepointCard">
       <div class="sharepoint-head">
         <div class="sharepoint-title">SharePoint Roster</div>
         <div class="sharepoint-actions">
           <a class="sharepoint-link" href="https://certiscisco.sharepoint.com/sites/CASCSSU/_layouts/15/Doc.aspx?sourcedoc={c52400bc-052c-47fd-94bb-69f9044c4d09}&action=embedview&wdInConfigurator=True&wdInConfigurator=True&edaebf=rslc0" target="_blank" rel="noopener">Open in new tab</a>
-          <button type="button" class="sharepoint-toggle" id="sharepointToggle" onclick="toggleSharePoint()">Collapse</button>
+          <button type="button" class="sharepoint-toggle" id="sharepointToggle" onclick="event.stopPropagation();toggleSharePoint()">Collapse</button>
         </div>
       </div>
       <iframe
@@ -444,6 +444,17 @@ function restoreSharePointPanel(){
 document.addEventListener('DOMContentLoaded',function(){
   restoreSharePointPanel();
   initResizableSplit();
+
+  var card=document.getElementById('sharepointCard');
+  var app=document.querySelector('.app');
+  if(card&&app){
+    card.addEventListener('click',function(e){
+      if(app.classList.contains('sp-collapsed')){
+        e.preventDefault();
+        toggleSharePoint();
+      }
+    });
+  }
 });
 
 function $(id){return document.getElementById(id);}
