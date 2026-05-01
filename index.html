@@ -19,8 +19,8 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
 .app{max-width:1600px;margin:0 auto;padding:24px 16px 60px;display:flex;gap:0;align-items:flex-start}
-.main-left{width:60%;min-width:360px;padding-right:8px}
-.sharepoint-right{width:40%;min-width:360px;position:sticky;top:16px;align-self:flex-start;padding-left:8px}
+.main-left{width:45%;min-width:360px;padding-right:8px}
+.sharepoint-right{width:55%;min-width:360px;position:sticky;top:16px;align-self:flex-start;padding-left:8px}
 .splitter{width:12px;align-self:stretch;min-height:calc(100vh - 48px);cursor:col-resize;position:relative;flex:0 0 12px}
 .splitter::before{content:'';position:sticky;top:16px;display:block;width:4px;height:calc(100vh - 96px);min-height:520px;margin:0 auto;border-radius:999px;background:var(--border);transition:background .15s}
 .splitter:hover::before,.splitter.dragging::before{background:var(--blue)}
@@ -28,9 +28,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;ba
 body.resizing{cursor:col-resize;user-select:none}
 body.resizing .sharepoint-frame{pointer-events:none}
 .sharepoint-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px}
-.sharepoint-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.sharepoint-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.sharepoint-title{font-size:14px;font-weight:700}
+.sharepoint-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.sharepoint-title{font-size:14px;font-weight:700;flex:0 0 auto}
+.sharepoint-actions{display:flex;align-items:center;justify-content:space-between;gap:6px;flex:1 1 auto;min-width:220px}
 .sharepoint-link,.sharepoint-toggle{font-size:12px;color:var(--blue);text-decoration:none;border:1px solid var(--bbd);background:var(--bbg);padding:4px 8px;border-radius:var(--rs);white-space:nowrap;font-family:inherit;cursor:pointer}
 .sharepoint-toggle:hover,.sharepoint-link:hover{opacity:.85}
 .sharepoint-frame{width:100%;height:calc(100vh - 96px);min-height:720px;border:1px solid var(--border);border-radius:var(--rs);background:#fff}
@@ -353,8 +353,8 @@ table.ot tbody tr.skiprow{opacity:.28}
       <div class="sharepoint-head">
         <div class="sharepoint-title">SharePoint Roster</div>
         <div class="sharepoint-actions">
+          <a class="sharepoint-link" href="https://certiscisco.sharepoint.com/sites/CASCSSU/_layouts/15/Doc.aspx?sourcedoc={c52400bc-052c-47fd-94bb-69f9044c4d09}&action=embedview&wdInConfigurator=True&wdInConfigurator=True&edaebf=rslc0" target="_blank" rel="noopener">Open in new tab</a>
           <button type="button" class="sharepoint-toggle" id="sharepointToggle" onclick="toggleSharePoint()">Collapse</button>
-          <a class="sharepoint-link" href="https://certiscisco.sharepoint.com/sites/CASCSSU/_layouts/15/Doc.aspx?sourcedoc={c52400bc-052c-47fd-94bb-69f9044c4d09}&action=embedview&wdAllowInteractivity=False&wdInConfigurator=True&wdInConfigurator=True&edaebf=rslc0" target="_blank" rel="noopener">Open in new tab</a>
         </div>
       </div>
       <iframe
