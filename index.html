@@ -298,6 +298,7 @@ table.ot tbody tr.skiprow{opacity:.28}
       </div>
       <div class="bgrp" style="margin-top:12px">
         <button class="btn preview" onclick="previewHoldbackXLSX()">&#x1F441;&#xFE0F; Preview Excel table at bottom</button>
+        <button class="btn" id="copyPreviewBtn" onclick="copyHoldbackPreview()" disabled style="background:var(--gbg); color:var(--green); border-color:var(--gbd); font-weight:700;">📋 Copy Preview Data</button>
         <button class="btn primary" onclick="exportXLSX()">&#x2B07; Export clean OT form (.xlsx)</button>
         <button class="btn" id="togSkipBtn" onclick="togSkipped()">Show skipped</button>
         <button class="btn" onclick="goPanel(2)">&#x2039; Back to flights</button>
@@ -327,6 +328,7 @@ table.ot tbody tr.skiprow{opacity:.28}
       <div class="bgrp">
         <button class="btn primary" onclick="runRosterModeAnalysis('co')">Analyse Confirm Off OT</button>
         <button class="btn preview" id="coPreviewBtn" onclick="previewRosterModeXlsx('co')" disabled>&#x1F441;&#xFE0F; Preview Excel table at bottom</button>
+        <button class="btn" id="coCopyBtn" onclick="copyRosterModePreview('co')" disabled style="background:var(--gbg); color:var(--green); border-color:var(--gbd); font-weight:700;">📋 Copy Preview Data</button>
         <button class="btn" id="coExportBtn" onclick="exportRosterModeXlsx('co')" disabled>Export Confirm Off OT Result</button>
       </div>
       <div id="coMsg"></div>
@@ -355,6 +357,7 @@ table.ot tbody tr.skiprow{opacity:.28}
       <div class="bgrp">
         <button class="btn primary" onclick="runRosterModeAnalysis('pp')">Analyse PrePlanned OT</button>
         <button class="btn preview" id="ppPreviewBtn" onclick="previewRosterModeXlsx('pp')" disabled>&#x1F441;&#xFE0F; Preview Excel table at bottom</button>
+        <button class="btn" id="ppCopyBtn" onclick="copyRosterModePreview('pp')" disabled style="background:var(--gbg); color:var(--green); border-color:var(--gbd); font-weight:700;">📋 Copy Preview Data</button>
         <button class="btn" id="ppExportBtn" onclick="exportRosterModeXlsx('pp')" disabled>Export PrePlanned OT Result</button>
       </div>
       <div id="ppMsg"></div>
@@ -628,6 +631,7 @@ async function runRosterModeAnalysis(mode){
     const exportRows=rmUniqueExportRows(data.results);
     exportBtn.disabled=exportRows.length===0;
     if(previewBtn)previewBtn.disabled=exportRows.length===0;
+    var copyBtn=$(mode+'CopyBtn'); if(copyBtn)copyBtn.disabled=exportRows.length===0;
     msg.innerHTML='<div class="alert ok">Done. '+data.results.length+' matches found. Export table has '+exportRows.length+' unique officer row(s). Click Preview Excel table at bottom to check before export.</div>';
     review.innerHTML=rmBuildRosterModeReview(mode,data);
     review.style.display='block';
@@ -659,15 +663,9 @@ function switchTool(mode){
   document.getElementById('modePPBtn').classList.toggle('active',isPP);
   document.getElementById('modeCOBtn').classList.toggle('active',isCO);
 }
-
 var masterData={grouping:null,roster:[],kah:{}};
 var photoB64='',photoMime='image/png';
 var flightRows=[],_otList=[],_skipped=false,_frid=0;
-var _manualNotes={}; // Stores manually typed OT reasons
-
-function saveOTNote(id, val) {
-  _manualNotes[id] = val;
-}
 
 function setStep(n){[1,2,3,4].forEach(function(i){var e=document.getElementById('s'+i);e.className='step'+(i===n?' active':i<n?' done':'');});}
 function goPanel(n){[1,2,3].forEach(function(i){document.getElementById('panel'+i).style.display='none';});document.getElementById('panel'+n).style.display='block';setStep(n);}
@@ -744,7 +742,6 @@ async function callAnthropicWithFallback(keys,models,payload){
 
 function loadMaster(inp){
   var f=inp.files[0];if(!f)return;
-  _manualNotes = {}; // Clears old manual notes on new file upload
   document.getElementById('mName').textContent=f.name;
   var rd=new FileReader();
   rd.onload=function(e){
@@ -854,12 +851,8 @@ function parseGrouping(ws){
 
     var colD=String(row[3]||'').trim();
     var colH=String(row[7]||'').trim();
-    
-    // Updated to catch "T2 PM", "(3) 1X" formats, and "[2] X2" formats
-    var isTeamCallsign = /T2\s*PM\s+\w|\(\d+\)\s*\d+X|\[\d+\]\s*X?\d/i;
-    
-    if(isTeamCallsign.test(colD)) currentCallsignL=colD;
-    if(isTeamCallsign.test(colH)) currentCallsignR=colH;
+    if(/T2\s*PM\s+\w/i.test(colD))currentCallsignL=colD;
+    if(/T2\s*PM\s+\w/i.test(colH))currentCallsignR=colH;
 
     var idC=String(row[2]||'').trim();
     var idG=String(row[6]||'').trim();
@@ -869,16 +862,17 @@ function parseGrouping(ws){
     var remG=String(row[8]||'').trim()+' '+String(row[9]||'').trim();
     if(/CRF/i.test(colH)||/CRF/i.test(String(row[5]||'')))remG+=' CRF';
 
-    // FIX: If there is a valid 4+ digit Service ID, add them. (Removed the old callsign blocker that deleted team leaders)
     if(/^\d{4,}$/.test(idC)&&!/SERVICE\s*ID/i.test(idC)){
       var nm=stripSuffix(String(row[3]||''));
-      if(nm){
+      var isCallsignC=/T2\s*PM|TEAM CALL SIGN|SERVICE ID/i.test(nm)||/\(\d+\)\s*\d+X\*?$/i.test(nm);
+      if(nm&&!isCallsignC){
         setGroupedOfficer(idC,{name:nm,callsign:currentCallsignL,team:currentTeam,rem:remC});
       }
     }
     if(/^\d{4,}$/.test(idG)&&!/SERVICE\s*ID/i.test(idG)){
       var nm2=stripSuffix(String(row[7]||''));
-      if(nm2){
+      var isCallsignG=/T2\s*PM|TEAM CALL SIGN|SERVICE ID/i.test(nm2)||/\(\d+\)\s*\d+X\*?$/i.test(nm2);
+      if(nm2&&!isCallsignG){
         setGroupedOfficer(idG,{name:nm2,callsign:currentCallsignR,team:currentTeam,rem:remG});
       }
     }
@@ -1047,7 +1041,7 @@ async function runAnalysis(){
 function buildFlightTable(parsed){
   flightRows=parsed.map(function(f){
     return{id:'fr'+(++_frid),etd:f.etd||'',flight:f.flight||'',gate:f.gate||'',
-      callsigns:(f.callsigns||[]).map(function(cs){return{text:cs,type:classifyCS(cs)};})};
+      callsigns:(f.callsigns||[]).map(function(cs){return{text:cs,type:classifyCS(cs.text)};})};
   });
   renderFlightTable();
   document.getElementById('flightCount').textContent=flightRows.length+' flights';
@@ -1226,6 +1220,7 @@ function buildOT(){
 
   renderOTTable(_otList);
   showMsg('p2msg','','');
+  var cpBtn=document.getElementById('copyPreviewBtn');if(cpBtn)cpBtn.disabled=false;
   goPanel(3);
 }
 
@@ -1250,12 +1245,6 @@ function renderOTTable(list){
     var defaultNote='';
     if(o.isKAH)defaultNote='SUPERVISOR DUTY';
     else if(o.flight)defaultNote=o.flight;
-    
-    // Restore manual note if user previously typed one
-    if(_manualNotes[o.id] !== undefined) {
-      defaultNote = _manualNotes[o.id];
-    }
-
     row.innerHTML=
       '<td style="font-size:11px;color:var(--muted);font-family:monospace">'+esc(o.id)+'</td>'+
       '<td style="font-size:12px" title="'+esc(o.name)+'">'+esc(o.name.length>26?o.name.slice(0,25)+'...':o.name)+'</td>'+
@@ -1264,7 +1253,7 @@ function renderOTTable(list){
       '<td style="font-size:12px;font-weight:600">'+esc(o.flight)+'</td>'+
       '<td style="font-size:12px">'+esc(o.gate)+'</td>'+
       '<td style="font-size:12px">'+esc(o.etd)+'</td>'+
-      '<td><input id="'+inpid+'" class="noteinp" value="'+esc(defaultNote)+'" placeholder="Flight/OT Reason" oninput="saveOTNote(\''+o.id+'\', this.value)"></td>';
+      '<td><input id="'+inpid+'" class="noteinp" value="'+esc(defaultNote)+'" placeholder="Flight/OT Reason"></td>';
     body.appendChild(row);
   });
   document.getElementById('stTotal').textContent=total;
@@ -1279,6 +1268,11 @@ function filterOT(q){
   document.querySelectorAll('#otBody tr').forEach(function(r){
     var txt=r.getAttribute('data-search')||'';r.style.display=(!q||txt.includes(q.toLowerCase()))?'':'none';
   });
+}
+
+function toggleSelectAll(master) {
+  var checkboxes = document.getElementsByClassName('row-checkbox');
+  for (var i = 0; i < checkboxes.length; i++) checkboxes[i].checked = master.checked;
 }
 
 function togSkipped(){
@@ -1325,6 +1319,34 @@ function exportXLSX(){
     XLSX.utils.book_append_sheet(wb,ws2,'Extend OT');
     XLSX.writeFile(wb,'Holdback OT Result.xlsx');
   }catch(ex){alert('Export failed: '+ex.message);}
+}
+
+function copyDataToClipboard(rows, successMsg) {
+  if (!rows || rows.length === 0) return;
+  var tsv = rows.map(function(row) {
+    return row.map(function(val) {
+      return String(val ?? '').replace(/\t/g, ' ').replace(/\n/g, ' ');
+    }).join('\t');
+  }).join('\n');
+  navigator.clipboard.writeText(tsv).then(function() {
+    alert(successMsg || "Preview data copied to clipboard! Ready to paste into Excel.");
+  }).catch(function(err) {
+    alert("Clipboard copy failed: " + err);
+  });
+}
+
+function copyHoldbackPreview() {
+  var rows = buildHoldbackPreviewRows();
+  if (rows.length <= 1) { alert("No preview data to copy!"); return; }
+  copyDataToClipboard(rows, "Copied " + (rows.length - 1) + " rows of preview data (ID, NAME, TEAM, OT Reasons) to clipboard!");
+}
+
+function copyRosterModePreview(mode) {
+  var st = ROSTER_MODE_STATE[mode];
+  if (!st || !st.results.length) return;
+  var rows = rmExportBodyRows(st.results);
+  if (rows.length <= 1) { alert("No preview data to copy!"); return; }
+  copyDataToClipboard(rows, "Copied " + (rows.length - 1) + " rows of " + st.title + " data to clipboard!");
 }
 </script>
 </body>
